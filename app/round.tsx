@@ -1,7 +1,9 @@
-import { Text, View, TouchableOpacity, Animated, Easing } from "react-native";
+import { Text, View, Animated, Easing } from "react-native";
 import { useRouter } from "expo-router";
 import { useState, useEffect, useRef } from "react";
 import { useGame } from "./context/GameContext";
+import { GradientButton } from "./components/GradientButton";
+import { colors } from "./theme";
 
 const countries = [
   { name: "Brazil", flag: "🇧🇷", dance: "Samba" },
@@ -75,26 +77,24 @@ export default function Round() {
   const spin = spinAnim.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "360deg"] });
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#1A0A2E", padding: 24 }}>
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.bg, padding: 24 }}>
       {phase === "spinning" && (
         <View style={{ alignItems: "center" }}>
-          <Text style={{ color: "#C9963A", fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8 }}>
+          <Text style={{ color: colors.pink, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8 }}>
             Round {currentRoundIndex + 1} of {roundCount}
           </Text>
-          <Text style={{ color: "#C9963A", fontSize: 13, letterSpacing: 4, textTransform: "uppercase", marginBottom: 40 }}>Get Ready...</Text>
+          <Text style={{ color: colors.mintDim, fontSize: 13, letterSpacing: 4, textTransform: "uppercase", marginBottom: 40 }}>Get Ready...</Text>
           <Animated.Text style={{ fontSize: 100, transform: [{ rotate: spin }] }}>🌍</Animated.Text>
         </View>
       )}
       {phase === "reveal" && currentCountry && (
         <View style={{ alignItems: "center" }}>
           <Text style={{ fontSize: 80, marginBottom: 24 }}>{currentCountry.flag}</Text>
-          <Text style={{ color: "#F0E6FF", fontSize: 42, fontWeight: "700", marginBottom: 12 }}>{currentCountry.name}</Text>
-          <Text style={{ color: "#C9963A", fontSize: 13, letterSpacing: 4, textTransform: "uppercase", marginBottom: 60 }}>
+          <Text style={{ color: colors.mint, fontSize: 42, fontWeight: "700", marginBottom: 12 }}>{currentCountry.name}</Text>
+          <Text style={{ color: colors.pink, fontSize: 13, letterSpacing: 4, textTransform: "uppercase", marginBottom: 60 }}>
             {currentPlayer ? `${currentPlayer.name}, get dancing!` : "Get dancing!"}
           </Text>
-          <TouchableOpacity onPress={() => router.push("/recording")} style={{ backgroundColor: "#C9963A", paddingHorizontal: 48, paddingVertical: 18 }}>
-            <Text style={{ color: "#1A0A2E", fontSize: 16, fontWeight: "700", letterSpacing: 4 }}>I'M READY</Text>
-          </TouchableOpacity>
+          <GradientButton label="I'M READY" onPress={() => router.push("/recording")} />
         </View>
       )}
     </View>

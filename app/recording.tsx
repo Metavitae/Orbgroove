@@ -1,6 +1,8 @@
-import { Text, View, TouchableOpacity, Animated, StyleSheet } from "react-native";
+import { Text, View, Animated, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { useState, useEffect, useRef, useCallback } from "react";
+import { GradientButton } from "./components/GradientButton";
+import { colors } from "./theme";
 import { useAudioRecorder, useAudioRecorderState, RecordingPresets } from "expo-audio";
 import {
   Camera,
@@ -196,7 +198,7 @@ export default function Recording() {
   const showCamera = phase === "recording" && hasCameraPermission && cameraDevice != null;
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#1A0A2E", padding: 24 }}>
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.bg, padding: 24 }}>
       {showCamera && (
         <Camera
           style={StyleSheet.absoluteFillObject}
@@ -212,14 +214,14 @@ export default function Recording() {
         />
       )}
       {showCamera && (
-        <View style={[StyleSheet.absoluteFillObject, { backgroundColor: "rgba(26,10,46,0.45)" }]} pointerEvents="none" />
+        <View style={[StyleSheet.absoluteFillObject, { backgroundColor: "rgba(6,20,15,0.45)" }]} pointerEvents="none" />
       )}
       {phase === "countdown" && (
         <View style={{ alignItems: "center" }}>
-          <Text style={{ color: "#C9963A", fontSize: 13, letterSpacing: 4, textTransform: "uppercase", marginBottom: 40 }}>
+          <Text style={{ color: colors.pink, fontSize: 13, letterSpacing: 4, textTransform: "uppercase", marginBottom: 40 }}>
             {currentPlayer ? `${currentPlayer.name}, get in position!` : "Get in position!"}
           </Text>
-          <Text style={{ color: "#F0E6FF", fontSize: 160, fontWeight: "700" }}>{count}</Text>
+          <Text style={{ color: colors.mint, fontSize: 160, fontWeight: "700" }}>{count}</Text>
         </View>
       )}
       {phase === "recording" && (
@@ -227,8 +229,8 @@ export default function Recording() {
           <Animated.View style={{ transform: [{ scale: pulseAnim }], marginBottom: 40 }}>
             <Text style={{ fontSize: 60 }}>🔴</Text>
           </Animated.View>
-          <Text style={{ color: "#F0E6FF", fontSize: 100, fontWeight: "700" }}>{timeLeft}</Text>
-          <Text style={{ color: "#C9963A", fontSize: 13, letterSpacing: 4, textTransform: "uppercase", marginTop: 16 }}>
+          <Text style={{ color: colors.mint, fontSize: 100, fontWeight: "700" }}>{timeLeft}</Text>
+          <Text style={{ color: colors.pink, fontSize: 13, letterSpacing: 4, textTransform: "uppercase", marginTop: 16 }}>
             {currentCountry ? `${currentCountry.dance}!` : "Dance!"}
           </Text>
         </View>
@@ -236,16 +238,14 @@ export default function Recording() {
       {phase === "done" && (
         <View style={{ alignItems: "center" }}>
           <Text style={{ fontSize: 80, marginBottom: 24 }}>🎉</Text>
-          <Text style={{ color: "#F0E6FF", fontSize: 32, fontWeight: "700", marginBottom: 48 }}>Time's up!</Text>
-          <TouchableOpacity
+          <Text style={{ color: colors.mint, fontSize: 32, fontWeight: "700", marginBottom: 48 }}>Time's up!</Text>
+          <GradientButton
+            label="SEE RESULTS"
             onPress={() => {
               finishClapometer();
               router.push("/reveal");
             }}
-            style={{ backgroundColor: "#C9963A", paddingHorizontal: 48, paddingVertical: 18 }}
-          >
-            <Text style={{ color: "#1A0A2E", fontSize: 16, fontWeight: "700", letterSpacing: 4 }}>SEE RESULTS</Text>
-          </TouchableOpacity>
+          />
         </View>
       )}
     </View>
