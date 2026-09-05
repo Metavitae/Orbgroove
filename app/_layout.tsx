@@ -1,12 +1,14 @@
 import { Stack } from "expo-router";
 import { useEffect } from "react";
 import * as ScreenOrientation from "expo-screen-orientation";
+import { Camera } from "react-native-vision-camera";
 import { GameProvider } from "./context/GameContext";
 import { requestMicPermissionOnce } from "./context/micPermission";
 
 export default function RootLayout() {
   useEffect(() => {
     requestMicPermissionOnce();
+    Camera.requestCameraPermission();
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
   }, []);
 
@@ -14,6 +16,7 @@ export default function RootLayout() {
     <GameProvider>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
+        <Stack.Screen name="home" />
         <Stack.Screen name="gamemode" />
         <Stack.Screen name="players" />
         <Stack.Screen name="round" />

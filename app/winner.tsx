@@ -32,7 +32,7 @@ export default function Winner() {
 
   const handleExit = () => {
     resetGame();
-    router.push("/");
+    router.push("/home" as any);
   };
 
   return (

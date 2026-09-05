@@ -1,19 +1,19 @@
 {
   "expo": {
-    "name": "HDYD",
-    "slug": "HDYD",
+    "name": "Orbgroove",
+    "slug": "orbgroove",
     "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
-    "scheme": "hdyd",
+    "scheme": "orbgroove",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSCameraUsageDescription": "HDYD uses the camera to detect your dance moves for scoring."
+        "NSCameraUsageDescription": "Orbgroove uses the camera to detect your dance moves for scoring."
       },
-      "bundleIdentifier": "com.metavitae.HDYD"
+      "bundleIdentifier": "com.metavitae.orbgroove"
     },
     "android": {
       "adaptiveIcon": {
@@ -28,7 +28,7 @@
         "android.permission.CAMERA",
         "android.permission.CAMERA"
       ],
-      "package": "com.metavitae.HDYD"
+      "package": "com.metavitae.orbgroove"
     },
     "web": {
       "output": "static",
@@ -57,7 +57,8 @@
         }
       ],
       "expo-audio",
-      "expo-asset"
+      "expo-asset",
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true,
