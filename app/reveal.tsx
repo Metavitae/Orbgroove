@@ -1,7 +1,10 @@
-import { Text, View, TouchableOpacity, Animated } from "react-native";
+import { Text, View, Animated } from "react-native";
 import { useRouter } from "expo-router";
 import { useState, useEffect, useRef } from "react";
 import { useGame } from "./context/GameContext";
+import { GradientButton } from "./components/GradientButton";
+import { OutlineButton } from "./components/OutlineButton";
+import { colors } from "./theme";
 
 export default function Reveal() {
   const router = useRouter();
@@ -71,62 +74,58 @@ export default function Reveal() {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#1A0A2E", padding: 24 }}>
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.bg, padding: 24 }}>
 
       {phase === "suspense" && (
         <View style={{ alignItems: "center" }}>
-          <Text style={{ color: "#C9963A", fontSize: 16, letterSpacing: 4, textTransform: "uppercase", marginBottom: 24 }}>Calculating...</Text>
+          <Text style={{ color: colors.pink, fontSize: 16, letterSpacing: 4, textTransform: "uppercase", marginBottom: 24 }}>Calculating...</Text>
           <Text style={{ fontSize: 80 }}>⚡</Text>
         </View>
       )}
 
       {phase === "splitscreen" && (
         <View style={{ width: "100%", alignItems: "center" }}>
-          <Text style={{ color: "#F0E6FF", fontSize: 20, fontWeight: "700", marginBottom: 8, textAlign: "center" }}>{currentPlayer ? currentPlayer.name : ""}</Text>
-          <Text style={{ color: "#C9963A", fontSize: 14, letterSpacing: 4, textTransform: "uppercase", marginBottom: 28, textAlign: "center" }}>How did you do?</Text>
+          <Text style={{ color: colors.mint, fontSize: 20, fontWeight: "700", marginBottom: 8, textAlign: "center" }}>{currentPlayer ? currentPlayer.name : ""}</Text>
+          <Text style={{ color: colors.pink, fontSize: 14, letterSpacing: 4, textTransform: "uppercase", marginBottom: 28, textAlign: "center" }}>How did you do?</Text>
           <View style={{ flexDirection: "row", width: "100%", marginBottom: 36 }}>
-            <View style={{ flex: 1, backgroundColor: "#2D1B4E", height: 220, justifyContent: "center", alignItems: "center", marginRight: 6, borderRadius: 4, borderWidth: 1, borderColor: "#C9963A" }}>
+            <View style={{ flex: 1, backgroundColor: colors.card, height: 220, justifyContent: "center", alignItems: "center", marginRight: 6, borderRadius: 14, borderWidth: 1, borderColor: colors.border }}>
               <Text style={{ fontSize: 60 }}>🕺</Text>
-              <Text style={{ color: "#F0E6FF", fontSize: 15, marginTop: 12, fontWeight: "700", letterSpacing: 2 }}>YOUR MOVES</Text>
+              <Text style={{ color: colors.mint, fontSize: 15, marginTop: 12, fontWeight: "700", letterSpacing: 2 }}>YOUR MOVES</Text>
             </View>
-            <View style={{ flex: 1, backgroundColor: "#2D1B4E", height: 220, justifyContent: "center", alignItems: "center", marginLeft: 6, borderRadius: 4, borderWidth: 1, borderColor: "#C9963A" }}>
+            <View style={{ flex: 1, backgroundColor: colors.card, height: 220, justifyContent: "center", alignItems: "center", marginLeft: 6, borderRadius: 14, borderWidth: 1, borderColor: colors.border }}>
               <Text style={{ fontSize: 60 }}>💃</Text>
-              <Text style={{ color: "#C9963A", fontSize: 15, marginTop: 12, fontWeight: "700", letterSpacing: 2 }}>PRO MOVES</Text>
+              <Text style={{ color: colors.cyan, fontSize: 15, marginTop: 12, fontWeight: "700", letterSpacing: 2 }}>PRO MOVES</Text>
             </View>
           </View>
-          <TouchableOpacity onPress={() => setPhase("scores")} style={{ borderWidth: 1, borderColor: "#C9963A", paddingHorizontal: 32, paddingVertical: 14, alignItems: "center" }}>
-            <Text style={{ color: "#C9963A", fontSize: 14, fontWeight: "700", letterSpacing: 4 }}>SEE MY SCORE</Text>
-          </TouchableOpacity>
+          <OutlineButton label="SEE MY SCORE" onPress={() => setPhase("scores")} style={{ paddingHorizontal: 32, paddingVertical: 14 }} />
         </View>
       )}
 
       {phase === "scores" && (
         <View style={{ width: "100%", alignItems: "center" }}>
-          <Text style={{ color: "#F0E6FF", fontSize: 20, fontWeight: "700", marginBottom: 20, textAlign: "center" }}>{currentPlayer ? currentPlayer.name : ""}</Text>
+          <Text style={{ color: colors.mint, fontSize: 20, fontWeight: "700", marginBottom: 20, textAlign: "center" }}>{currentPlayer ? currentPlayer.name : ""}</Text>
           <View style={{ flexDirection: "row", width: "100%", height: 300, marginBottom: 32 }}>
             <View style={{ flexDirection: "row", flex: 1, alignItems: "flex-end", height: 300 }}>
               <View style={{ flex: 1, alignItems: "center", marginRight: 12 }}>
-                <View style={{ width: 44, height: 220, backgroundColor: "#2D1B4E", borderRadius: 4, justifyContent: "flex-end" }}>
-                  <Animated.View style={{ width: 44, height: rhythmHeight, backgroundColor: "#C9963A", borderRadius: 4 }} />
+                <View style={{ width: 44, height: 220, backgroundColor: colors.card, borderRadius: 8, justifyContent: "flex-end", overflow: "hidden" }}>
+                  <Animated.View style={{ width: 44, height: rhythmHeight, backgroundColor: colors.cyan }} />
                 </View>
-                <Text style={{ color: "#F0E6FF", fontSize: 12, letterSpacing: 2, marginTop: 8, textTransform: "uppercase" }}>Rhythm</Text>
+                <Text style={{ color: colors.mint, fontSize: 12, letterSpacing: 2, marginTop: 8, textTransform: "uppercase" }}>Rhythm</Text>
               </View>
               <View style={{ flex: 1, alignItems: "center" }}>
-                <View style={{ width: 44, height: 220, backgroundColor: "#2D1B4E", borderRadius: 4, justifyContent: "flex-end" }}>
-                  <Animated.View style={{ width: 44, height: physHeight, backgroundColor: "#C9963A", borderRadius: 4 }} />
+                <View style={{ width: 44, height: 220, backgroundColor: colors.card, borderRadius: 8, justifyContent: "flex-end", overflow: "hidden" }}>
+                  <Animated.View style={{ width: 44, height: physHeight, backgroundColor: colors.pink }} />
                 </View>
-                <Text style={{ color: "#F0E6FF", fontSize: 12, letterSpacing: 2, marginTop: 8, textTransform: "uppercase" }}>Moves</Text>
+                <Text style={{ color: colors.mint, fontSize: 12, letterSpacing: 2, marginTop: 8, textTransform: "uppercase" }}>Moves</Text>
               </View>
             </View>
             <View style={{ flex: 1, alignItems: "center", justifyContent: "flex-end", paddingBottom: 28 }}>
-              <Animated.Text style={{ color: "#C9963A", fontWeight: "700", textTransform: "uppercase", transform: [{ translateY: textTranslateY }], fontSize: textSize, letterSpacing: textLetterSpacing }}>
+              <Animated.Text style={{ color: colors.pink, fontWeight: "700", textTransform: "uppercase", transform: [{ translateY: textTranslateY }], fontSize: textSize, letterSpacing: textLetterSpacing }}>
                 YOUR{"\n"}SCORE
               </Animated.Text>
             </View>
           </View>
-          <TouchableOpacity onPress={handleNext} style={{ backgroundColor: "#C9963A", paddingHorizontal: 48, paddingVertical: 18, width: "100%", alignItems: "center" }}>
-            <Text style={{ color: "#1A0A2E", fontSize: 16, fontWeight: "700", letterSpacing: 4 }}>NEXT</Text>
-          </TouchableOpacity>
+          <GradientButton label="NEXT" onPress={handleNext} style={{ width: "100%" }} />
         </View>
       )}
 

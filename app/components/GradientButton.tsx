@@ -4,10 +4,12 @@ import { colors } from "../theme";
 
 export function GradientButton({
   label,
+  subtitle,
   onPress,
   style,
 }: {
   label: string;
+  subtitle?: string;
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
 }) {
@@ -30,6 +32,7 @@ export function GradientButton({
         }}
       >
         <Text style={{ color: colors.darkText, fontSize: 16, fontWeight: "700", letterSpacing: 3 }}>{label}</Text>
+        {subtitle && <Text style={{ color: colors.darkText, fontSize: 12, marginTop: 4, opacity: 0.7 }}>{subtitle}</Text>}
       </LinearGradient>
     </TouchableOpacity>
   );
