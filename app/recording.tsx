@@ -1,6 +1,6 @@
-import { Text, View, Animated, StyleSheet } from "react-native";
+import { Text, View, Animated, StyleSheet, Dimensions, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
 import { GradientButton } from "./components/GradientButton";
 import { colors } from "./theme";
 import { useAudioRecorder, useAudioRecorderState, RecordingPresets } from "expo-audio";
@@ -216,24 +216,39 @@ export default function Recording() {
 
   const showCamera = phase === "recording" && hasCameraPermission && cameraDevice != null;
 
+  // TEMP CALIBRATION — tap the top-left corner during a recording to cycle
+  // this until the live preview reads upright, then hardcode the winning
+  // value below and delete this block + the debugRotation state/tap target.
+  const [debugRotation, setDebugRotation] = useState(0);
+
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.bg, padding: 24 }}>
       {showCamera && (
-        <Camera
-          style={StyleSheet.absoluteFillObject}
-          resizeMode="cover"
-          device={cameraDevice}
-          format={cameraFormat}
-          pixelFormat="rgb"
-          isActive={true}
-          frameProcessor={poseSolution.frameProcessor}
-          onLayout={poseSolution.cameraViewLayoutChangeHandler}
-          onOutputOrientationChanged={poseSolution.cameraOrientationChangedHandler}
-          photo={true}
-        />
+        <CameraPreviewRotated rotationDeg={debugRotation}>
+          <Camera
+            style={StyleSheet.absoluteFillObject}
+            resizeMode="cover"
+            device={cameraDevice}
+            format={cameraFormat}
+            pixelFormat="rgb"
+            isActive={true}
+            frameProcessor={poseSolution.frameProcessor}
+            onLayout={poseSolution.cameraViewLayoutChangeHandler}
+            onOutputOrientationChanged={poseSolution.cameraOrientationChangedHandler}
+            photo={true}
+          />
+        </CameraPreviewRotated>
       )}
       {showCamera && (
         <View style={[StyleSheet.absoluteFillObject, { backgroundColor: "rgba(6,20,15,0.45)" }]} pointerEvents="none" />
+      )}
+      {showCamera && (
+        <TouchableOpacity
+          style={{ position: "absolute", top: 0, left: 0, width: 120, height: 120, zIndex: 50 }}
+          onPress={() => setDebugRotation(r => (r + 90) % 360)}
+        >
+          <Text style={{ color: "#fff", fontSize: 10 }}>rot:{debugRotation}</Text>
+        </TouchableOpacity>
       )}
       {phase === "countdown" && (
         <View style={{ alignItems: "center" }}>
@@ -267,6 +282,35 @@ export default function Recording() {
           />
         </View>
       )}
+    </View>
+  );
+}
+
+// Corrects the live camera preview's visual rotation at the render layer
+// only — the underlying frame data (fed to MediaPipe via frameProcessor)
+// is untouched, so landmark accuracy doesn't depend on this. Needed
+// because this device's VisionCamera preview renders ~90° off; see the
+// Sep 3 investigation (CameraSession.kt previewOrientation vs.
+// outputOrientation divergence, matching upstream vision-camera#3018),
+// where a native patch targeting the preview's rotation was tried and had
+// no effect. Rotating the whole view at the RN layer sidesteps that native
+// code path entirely rather than depending on it to report correctly.
+function CameraPreviewRotated({ rotationDeg, children }: { rotationDeg: number; children: ReactNode }) {
+  const window = Dimensions.get("window");
+  const swapped = rotationDeg === 90 || rotationDeg === 270;
+  const size = swapped ? { width: window.height, height: window.width } : { width: window.width, height: window.height };
+  return (
+    <View
+      style={{
+        position: "absolute",
+        top: (window.height - size.height) / 2,
+        left: (window.width - size.width) / 2,
+        width: size.width,
+        height: size.height,
+        transform: [{ rotate: `${rotationDeg}deg` }],
+      }}
+    >
+      {children}
     </View>
   );
 }
