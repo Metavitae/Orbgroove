@@ -1,0 +1,26 @@
+diff --git a/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/core/CameraSession.kt b/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/core/CameraSession.kt
+index 13f6a76..92af68c 100644
+--- a/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/core/CameraSession.kt
++++ b/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/core/CameraSession.kt
+@@ -198,13 +198,15 @@ class CameraSession(internal val context: Context, internal val callback: Callba
+   }
+ 
+   private fun configureOrientation() {
+-    // Preview Orientation
+-    orientationManager.previewOrientation.toSurfaceRotation().let { previewRotation ->
+-      previewOutput?.targetRotation = previewRotation
+-      codeScannerOutput?.targetRotation = previewRotation
+-    }
+-    // Outputs Orientation
++    // On some devices (confirmed: Xiaomi/POCO, MIUI) orientationManager.previewOrientation
++    // reports the wrong value while orientationManager.outputOrientation is correct, which
++    // renders the camera preview rotated 90° even though everything else (the Activity's own
++    // orientation, photo/video output) is fine. Community-confirmed workaround
++    // (react-native-vision-camera#3018): drive the preview's targetRotation off the correct
++    // outputOrientation instead of the separate, buggy previewOrientation.
+     orientationManager.outputOrientation.toSurfaceRotation().let { outputRotation ->
++      previewOutput?.targetRotation = outputRotation
++      codeScannerOutput?.targetRotation = outputRotation
+       photoOutput?.targetRotation = outputRotation
+       videoOutput?.targetRotation = outputRotation
+     }
