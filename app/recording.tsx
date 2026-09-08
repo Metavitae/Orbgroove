@@ -45,12 +45,13 @@ export default function Recording() {
   // only left the runtime-only ScreenOrientation.lockAsync() call in
   // _layout.tsx as the sole guard — vulnerable to vendor camera-stack
   // rotation overrides (a known MIUI/Xiaomi quirk when a Camera opens).
-  // onUIRotationChanged is kept as a defensive counter-rotation for the
-  // overlay in case any transient rotation mismatch still slips through.
-  const uiRotation = useRef(new Animated.Value(0)).current;
-  const onUIRotationChanged = useCallback((rotation: number) => {
-    Animated.timing(uiRotation, { toValue: rotation, duration: 150, useNativeDriver: true }).start();
-  }, [uiRotation]);
+  //
+  // onUIRotationChanged was tried here too (counter-rotating the overlay),
+  // but that's the wrong tool: it reports rotation relative to the device's
+  // raw sensor for gravity-relative controls (e.g. a shutter icon), not a
+  // "your layout is wrong" signal — applying it to this screen's normal RN
+  // text actively rotated content that RN was already laying out correctly,
+  // producing a worse version of the same bug. Removed.
 
   // Pose-detection capture (ported from the standalone app/pose-test.tsx
   // PoC, confirmed working there). Landmark frames accumulate here for the
@@ -228,53 +229,44 @@ export default function Recording() {
           frameProcessor={poseSolution.frameProcessor}
           onLayout={poseSolution.cameraViewLayoutChangeHandler}
           onOutputOrientationChanged={poseSolution.cameraOrientationChangedHandler}
-          onUIRotationChanged={onUIRotationChanged}
           photo={true}
         />
       )}
       {showCamera && (
         <View style={[StyleSheet.absoluteFillObject, { backgroundColor: "rgba(6,20,15,0.45)" }]} pointerEvents="none" />
       )}
-      <Animated.View
-        style={{
-          transform: [{
-            rotate: uiRotation.interpolate({ inputRange: [-360, 360], outputRange: ["-360deg", "360deg"] }),
-          }],
-        }}
-      >
-        {phase === "countdown" && (
-          <View style={{ alignItems: "center" }}>
-            <Text style={{ color: colors.pink, fontSize: 13, letterSpacing: 4, textTransform: "uppercase", marginBottom: 40 }}>
-              {currentPlayer ? `${currentPlayer.name}, get in position!` : "Get in position!"}
-            </Text>
-            <Text style={{ color: colors.mint, fontSize: 160, fontWeight: "700" }}>{count}</Text>
-          </View>
-        )}
-        {phase === "recording" && (
-          <View style={{ alignItems: "center" }}>
-            <Animated.View style={{ transform: [{ scale: pulseAnim }], marginBottom: 40 }}>
-              <Text style={{ fontSize: 60 }}>🔴</Text>
-            </Animated.View>
-            <Text style={{ color: colors.mint, fontSize: 100, fontWeight: "700" }}>{timeLeft}</Text>
-            <Text style={{ color: colors.pink, fontSize: 13, letterSpacing: 4, textTransform: "uppercase", marginTop: 16 }}>
-              {currentCountry ? `${currentCountry.dance}!` : "Dance!"}
-            </Text>
-          </View>
-        )}
-        {phase === "done" && (
-          <View style={{ alignItems: "center" }}>
-            <Text style={{ fontSize: 80, marginBottom: 24 }}>🎉</Text>
-            <Text style={{ color: colors.mint, fontSize: 32, fontWeight: "700", marginBottom: 48 }}>Time's up!</Text>
-            <GradientButton
-              label="SEE RESULTS"
-              onPress={() => {
-                finishClapometer();
-                router.push("/reveal");
-              }}
-            />
-          </View>
-        )}
-      </Animated.View>
+      {phase === "countdown" && (
+        <View style={{ alignItems: "center" }}>
+          <Text style={{ color: colors.pink, fontSize: 13, letterSpacing: 4, textTransform: "uppercase", marginBottom: 40 }}>
+            {currentPlayer ? `${currentPlayer.name}, get in position!` : "Get in position!"}
+          </Text>
+          <Text style={{ color: colors.mint, fontSize: 160, fontWeight: "700" }}>{count}</Text>
+        </View>
+      )}
+      {phase === "recording" && (
+        <View style={{ alignItems: "center" }}>
+          <Animated.View style={{ transform: [{ scale: pulseAnim }], marginBottom: 40 }}>
+            <Text style={{ fontSize: 60 }}>🔴</Text>
+          </Animated.View>
+          <Text style={{ color: colors.mint, fontSize: 100, fontWeight: "700" }}>{timeLeft}</Text>
+          <Text style={{ color: colors.pink, fontSize: 13, letterSpacing: 4, textTransform: "uppercase", marginTop: 16 }}>
+            {currentCountry ? `${currentCountry.dance}!` : "Dance!"}
+          </Text>
+        </View>
+      )}
+      {phase === "done" && (
+        <View style={{ alignItems: "center" }}>
+          <Text style={{ fontSize: 80, marginBottom: 24 }}>🎉</Text>
+          <Text style={{ color: colors.mint, fontSize: 32, fontWeight: "700", marginBottom: 48 }}>Time's up!</Text>
+          <GradientButton
+            label="SEE RESULTS"
+            onPress={() => {
+              finishClapometer();
+              router.push("/reveal");
+            }}
+          />
+        </View>
+      )}
     </View>
   );
 }
