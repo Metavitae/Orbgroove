@@ -1,0 +1,84 @@
+name: Android Standalone Build
+
+# Produces a self-contained release APK — no expo-dev-client, no Metro
+# server needed to open the app. The JS bundle is compiled into the APK
+# itself (React Native's release build type runs bundleReleaseJsAndAssets
+# automatically; debug builds don't, which is why the dev-build workflow's
+# APK needs a live Metro connection).
+#
+# expo-dev-client's DevLauncherActivity manifest fragment lives in the
+# Android debug source set only (node_modules/expo-dev-launcher/android/src/debug),
+# so assembleRelease never picks it up — MainActivity is the launcher
+# directly, same as a normal installed app.
+#
+# Release signing reuses the auto-generated debug keystore (see
+# android/app/build.gradle — release.signingConfig = signingConfigs.debug),
+# so this still needs no signing secrets. Fine for side-loading via adb;
+# would need a real release keystore before any Play Store submission.
+#
+# Image pinned to match EAS's managed image for this project (Expo SDK 54):
+# ubuntu-24.04-jdk-17-ndk-r27b — Java 17, NDK 27.1.12297006,
+# build-tools 35.0.0.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies (applies patches/ via postinstall)
+        run: npm ci
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install NDK + build-tools (matching EAS's managed image)
+        run: |
+          sdkmanager --install "ndk;27.1.12297006" "build-tools;35.0.0" "platforms;android-35"
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/27.1.12297006" >> "$GITHUB_ENV"
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Expo prebuild (android)
+        run: npx expo prebuild --platform android
+
+      - name: Build release APK
+        working-directory: android
+        run: |
+          chmod +x ./gradlew
+          # Single ABI (arm64-v8a) — real Android phones, not the emulator
+          # ABIs — to keep CI time down on GitHub's 2-vCPU/7GB runners vs.
+          # EAS's 4-vCPU/15.6GB build machines.
+          ./gradlew :app:assembleRelease -PreactNativeArchitectures=arm64-v8a --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: orbgroove-standalone-release-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 14
