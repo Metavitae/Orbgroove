@@ -226,6 +226,14 @@ export default function Recording() {
           format={cameraFormat}
           pixelFormat="rgb"
           isActive={true}
+          // Default "surface-view" preview is hardware-composited and
+          // ignores the app's landscape lock on this device, rendering
+          // sideways (confirmed via a marker test: an RN-level rotation
+          // transform correctly rotated its own wrapper view but never
+          // touched the camera image behind it). "texture-view" renders
+          // through a real Android View instead, so it picks up the
+          // orientation lock correctly. Confirmed upright on-device.
+          androidPreviewViewType="texture-view"
           frameProcessor={poseSolution.frameProcessor}
           onLayout={poseSolution.cameraViewLayoutChangeHandler}
           onOutputOrientationChanged={poseSolution.cameraOrientationChangedHandler}
