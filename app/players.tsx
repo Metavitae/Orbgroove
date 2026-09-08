@@ -1,4 +1,4 @@
-import { Text, View, TouchableOpacity } from "react-native";
+import { Text, View, TouchableOpacity, LayoutChangeEvent } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";
 import { useGame, MAX_PLAYERS } from "./context/GameContext";
@@ -45,7 +45,11 @@ export default function Players() {
   const [step, setStep] = useState<"announce" | "type" | "name">(modeParam === "crowd" ? "announce" : "type");
   const [currentType, setCurrentType] = useState<PlayerType | null>(null);
   const [shuffles, setShuffles] = useState(0);
-  const [shownNames, setShownNames] = useState<string[]>([]);
+  // Full curated pool for the current pick (up to 8); how many of them are
+  // actually rendered is trimmed below to whatever fits the landscape screen
+  // without scrolling — this app has a standing no-scroll rule for this kind
+  // of list, so it measures real layout instead of guessing a fixed count.
+  const [curatedNames, setCuratedNames] = useState<string[]>([]);
   const [soloNames, setSoloNames] = useState<string[]>(FALLBACK_SOLO_NAMES);
   const [groupNames, setGroupNames] = useState<string[]>(FALLBACK_GROUP_NAMES);
 
@@ -99,7 +103,7 @@ export default function Players() {
   const selectType = (type: PlayerType) => {
     setCurrentType(type);
     const available = getAvailable(type, takenNames);
-    setShownNames(available.sort(() => Math.random() - 0.5).slice(0, 8));
+    setCuratedNames(available.sort(() => Math.random() - 0.5).slice(0, 8));
     setShuffles(0);
     setStep("name");
   };
@@ -115,12 +119,45 @@ export default function Players() {
     if (shuffles < 2 && currentType) {
       setShuffles(shuffles + 1);
       const available = getAvailable(currentType, takenNames);
-      setShownNames([...available].sort(() => Math.random() - 0.5).slice(0, 8));
+      setCuratedNames([...available].sort(() => Math.random() - 0.5).slice(0, 8));
     }
   };
 
+  const canShuffle = shuffles < 2;
+
+  // Runtime measurements used to fit the name list without scrolling:
+  // screenHeight = this screen's total rendered height (measured once, on
+  // the root View, whose padding is already known below); headerHeight and
+  // shuffleHeight are the fixed chrome above/below the list; rowHeight comes
+  // from actually measuring the first rendered name button, so it reflects
+  // real font/padding rendering on this device rather than a guess.
+  const [screenHeight, setScreenHeight] = useState<number | null>(null);
+  const [headerHeight, setHeaderHeight] = useState<number | null>(null);
+  const [shuffleHeight, setShuffleHeight] = useState<number | null>(null);
+  const [rowHeight, setRowHeight] = useState<number | null>(null);
+  const SCREEN_PADDING = 40; // root View's padding: 20 top + 20 bottom
+  const HEADER_MARGIN_BOTTOM = 10;
+  const SHUFFLE_MARGIN_TOP = 8;
+  const ROW_MARGIN_BOTTOM = 6;
+  const DEFAULT_VISIBLE_NAMES = 4; // conservative guess used only until real measurements land
+
+  const visibleNameCount = (() => {
+    if (screenHeight == null || headerHeight == null || rowHeight == null) {
+      return Math.min(DEFAULT_VISIBLE_NAMES, curatedNames.length);
+    }
+    const shuffleSpace = canShuffle ? (shuffleHeight ?? 0) + SHUFFLE_MARGIN_TOP : 0;
+    const available = screenHeight - SCREEN_PADDING - headerHeight - HEADER_MARGIN_BOTTOM - shuffleSpace;
+    const fit = Math.floor(available / rowHeight);
+    return Math.max(1, Math.min(fit, curatedNames.length));
+  })();
+
+  const shownNames = curatedNames.slice(0, visibleNameCount);
+
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg, padding: 20, justifyContent: "center" }}>
+    <View
+      style={{ flex: 1, backgroundColor: colors.bg, padding: 20, justifyContent: "center" }}
+      onLayout={(e: LayoutChangeEvent) => setScreenHeight(e.nativeEvent.layout.height)}
+    >
       {step === "announce" && (
         <View style={{ width: "100%", alignItems: "center" }}>
           <Text style={{ fontSize: 40, marginBottom: 20 }}>👀</Text>
@@ -174,12 +211,28 @@ export default function Players() {
 
       {step === "name" && (
         <View style={{ width: "100%" }}>
-          <Text style={{ color: colors.pink, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 10, textAlign: "center" }}>Pick Your Name</Text>
+          <Text
+            style={{ color: colors.pink, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 10, textAlign: "center" }}
+            onLayout={(e: LayoutChangeEvent) => setHeaderHeight(e.nativeEvent.layout.height)}
+          >
+            Pick Your Name
+          </Text>
           {shownNames.map((name, i) => (
-            <OutlineButton key={i} label={name} plain onPress={() => pickName(name)} style={{ width: "100%", marginBottom: 6, padding: 11 }} />
+            <OutlineButton
+              key={name}
+              label={name}
+              plain
+              onPress={() => pickName(name)}
+              style={{ width: "100%", marginBottom: ROW_MARGIN_BOTTOM, padding: 11 }}
+              onLayout={i === 0 ? (e: LayoutChangeEvent) => setRowHeight(e.nativeEvent.layout.height + ROW_MARGIN_BOTTOM) : undefined}
+            />
           ))}
-          {shuffles < 2 && (
-            <TouchableOpacity onPress={shuffle} style={{ marginTop: 8, alignItems: "center", padding: 10 }}>
+          {canShuffle && (
+            <TouchableOpacity
+              onPress={shuffle}
+              onLayout={(e: LayoutChangeEvent) => setShuffleHeight(e.nativeEvent.layout.height)}
+              style={{ marginTop: SHUFFLE_MARGIN_TOP, alignItems: "center", padding: 10 }}
+            >
               <Text style={{ color: colors.mintDim, fontSize: 12, letterSpacing: 3 }}>Shuffle ({2 - shuffles} left)</Text>
             </TouchableOpacity>
           )}

@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, StyleProp, ViewStyle } from "react-native";
+import { Text, TouchableOpacity, StyleProp, ViewStyle, LayoutChangeEvent } from "react-native";
 import { colors } from "../theme";
 
 export function OutlineButton({
@@ -7,6 +7,7 @@ export function OutlineButton({
   onPress,
   style,
   plain,
+  onLayout,
 }: {
   label: string;
   subtitle?: string;
@@ -15,10 +16,12 @@ export function OutlineButton({
   /** Renders label as plain text (no uppercase/letter-spacing) — for free-form
    * strings like player names, which can overflow the shouty default style. */
   plain?: boolean;
+  onLayout?: (event: LayoutChangeEvent) => void;
 }) {
   return (
     <TouchableOpacity
       onPress={onPress}
+      onLayout={onLayout}
       activeOpacity={0.75}
       style={[
         { borderWidth: 1.5, borderColor: colors.cyan, borderRadius: 16, padding: 16, alignItems: "center" },
