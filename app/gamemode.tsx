@@ -28,7 +28,7 @@ export default function GameMode() {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.bg, padding: 24, paddingBottom: 24 + insets.bottom }}>
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.bg, padding: 24, paddingBottom: 24 + Math.max(insets.bottom, 24) }}>
       {step === "mode" && (
         <View style={{ width: "100%", alignItems: "center" }}>
           <Text style={{ color: colors.pink, fontSize: 13, letterSpacing: 4, textTransform: "uppercase", marginBottom: 16 }}>Game Mode</Text>

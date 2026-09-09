@@ -82,7 +82,7 @@ export default function Round() {
     <ImageBackground
       source={require("../assets/images/bg_round_intro.jpg")}
       resizeMode="cover"
-      style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 24, paddingBottom: 24 + insets.bottom }}
+      style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 24, paddingBottom: 24 + Math.max(insets.bottom, 24) }}
     >
       <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(6,20,15,0.4)" }} pointerEvents="none" />
       {phase === "spinning" && (

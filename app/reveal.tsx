@@ -79,7 +79,7 @@ export default function Reveal() {
     <ImageBackground
       source={require("../assets/images/bg_reveal.jpg")}
       resizeMode="cover"
-      style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 24, paddingBottom: 24 + insets.bottom }}
+      style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 24, paddingBottom: 24 + Math.max(insets.bottom, 24) }}
     >
       <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(6,20,15,0.4)" }} pointerEvents="none" />
 
@@ -91,15 +91,21 @@ export default function Reveal() {
       )}
 
       {phase === "splitscreen" && (
-        <View style={{ width: "100%", alignItems: "center" }}>
-          <Text style={{ color: colors.mint, fontSize: 20, fontWeight: "700", marginBottom: 8, textAlign: "center" }}>{currentPlayer ? currentPlayer.name : ""}</Text>
-          <Text style={{ color: colors.pink, fontSize: 14, letterSpacing: 4, textTransform: "uppercase", marginBottom: 28, textAlign: "center" }}>How did you do?</Text>
-          <View style={{ flexDirection: "row", width: "100%", marginBottom: 36 }}>
-            <View style={{ flex: 1, backgroundColor: colors.card, height: 220, justifyContent: "center", alignItems: "center", marginRight: 6, borderRadius: 14, borderWidth: 1, borderColor: colors.border }}>
+        // Same fix as the scores phase below: flex:1 + space-between instead of
+        // a centered block of fixed-height content, so the comparison cards
+        // shrink to fit whatever height is actually available instead of
+        // pushing SEE MY SCORE past the bottom edge on a shorter screen.
+        <View style={{ flex: 1, width: "100%", alignItems: "center", justifyContent: "space-between" }}>
+          <View style={{ alignItems: "center" }}>
+            <Text style={{ color: colors.mint, fontSize: 20, fontWeight: "700", marginBottom: 8, textAlign: "center" }}>{currentPlayer ? currentPlayer.name : ""}</Text>
+            <Text style={{ color: colors.pink, fontSize: 14, letterSpacing: 4, textTransform: "uppercase", textAlign: "center" }}>How did you do?</Text>
+          </View>
+          <View style={{ flexDirection: "row", width: "100%", flex: 1, minHeight: 0, marginVertical: 16 }}>
+            <View style={{ flex: 1, backgroundColor: colors.card, justifyContent: "center", alignItems: "center", marginRight: 6, borderRadius: 14, borderWidth: 1, borderColor: colors.border }}>
               <Text style={{ fontSize: 60 }}>🕺</Text>
               <Text style={{ color: colors.mint, fontSize: 15, marginTop: 12, fontWeight: "700", letterSpacing: 2 }}>YOUR MOVES</Text>
             </View>
-            <View style={{ flex: 1, backgroundColor: colors.card, height: 220, justifyContent: "center", alignItems: "center", marginLeft: 6, borderRadius: 14, borderWidth: 1, borderColor: colors.border }}>
+            <View style={{ flex: 1, backgroundColor: colors.card, justifyContent: "center", alignItems: "center", marginLeft: 6, borderRadius: 14, borderWidth: 1, borderColor: colors.border }}>
               <Text style={{ fontSize: 60 }}>💃</Text>
               <Text style={{ color: colors.cyan, fontSize: 15, marginTop: 12, fontWeight: "700", letterSpacing: 2 }}>PRO MOVES</Text>
             </View>

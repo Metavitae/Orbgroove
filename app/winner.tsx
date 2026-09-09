@@ -43,7 +43,7 @@ export default function Winner() {
     <ImageBackground
       source={require("../assets/images/bg_winner.jpg")}
       resizeMode="cover"
-      style={{ flex: 1, justifyContent: "center", alignItems: "center", paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16 + insets.bottom }}
+      style={{ flex: 1, justifyContent: "center", alignItems: "center", paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16 + Math.max(insets.bottom, 24) }}
     >
       <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(6,20,15,0.35)" }} pointerEvents="none" />
       <Animated.View style={{ alignItems: "center", transform: [{ scale: scaleAnim }], marginBottom: 20 }}>

@@ -137,7 +137,7 @@ export default function Players() {
   const [headerHeight, setHeaderHeight] = useState<number | null>(null);
   const [shuffleHeight, setShuffleHeight] = useState<number | null>(null);
   const [rowHeight, setRowHeight] = useState<number | null>(null);
-  const SCREEN_PADDING = 40 + insets.bottom; // root View's padding: 20 top + 20 bottom + safe-area bottom inset
+  const SCREEN_PADDING = 40 + Math.max(insets.bottom, 24); // root View's padding: 20 top + 20 bottom + safe-area bottom inset (floored -- some devices report 0 bottom inset in landscape with gesture nav, even though the nav pill is still visually there)
   const HEADER_MARGIN_BOTTOM = 10;
   const SHUFFLE_MARGIN_TOP = 8;
   const ROW_MARGIN_BOTTOM = 6;
@@ -157,7 +157,7 @@ export default function Players() {
 
   return (
     <View
-      style={{ flex: 1, backgroundColor: colors.bg, padding: 20, paddingBottom: 20 + insets.bottom, justifyContent: "center" }}
+      style={{ flex: 1, backgroundColor: colors.bg, padding: 20, paddingBottom: 20 + Math.max(insets.bottom, 24), justifyContent: "center" }}
       onLayout={(e: LayoutChangeEvent) => setScreenHeight(e.nativeEvent.layout.height)}
     >
       {step === "announce" && (

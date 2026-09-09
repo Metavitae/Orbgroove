@@ -8,7 +8,7 @@ export default function Index() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.bg, paddingHorizontal: 40, paddingBottom: insets.bottom }}>
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.bg, paddingHorizontal: 40, paddingBottom: Math.max(insets.bottom, 24) }}>
       <Text numberOfLines={1} adjustsFontSizeToFit style={{ fontSize: 60, fontWeight: "700", width: "100%", textAlign: "center" }}>
         <Text style={{ color: colors.mint }}>Orb</Text>
         <Text style={{ color: colors.pink }}>groove</Text>

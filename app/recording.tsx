@@ -222,7 +222,7 @@ export default function Recording() {
     <ImageBackground
       source={require("../assets/images/bg_recording.jpg")}
       resizeMode="cover"
-      style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 24, paddingBottom: 24 + insets.bottom }}
+      style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 24, paddingBottom: 24 + Math.max(insets.bottom, 24) }}
     >
       {showCamera && (
         <Camera
