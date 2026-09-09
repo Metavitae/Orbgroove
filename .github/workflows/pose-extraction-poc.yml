@@ -1,0 +1,56 @@
+name: Pose extraction (Solo mode PoC)
+
+# Runs the paused-frame pose-extraction pipeline (tools/pose-extraction/) on a
+# GitHub-hosted runner instead of locally, because mediapipe's wheel requires
+# AVX and the local dev machine's CPU doesn't support it. Downloads a
+# reference video to the runner's scratch disk, grabs one frame, runs
+# MediaPipe Pose Landmarker on it, uploads ONLY the resulting landmark JSON
+# as an artifact, then the runner (and the video with it) is torn down --
+# nothing about the source video is ever committed or persisted.
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Reference video URL"
+        required: true
+      timestamp:
+        description: "Timestamp in seconds to grab the pose from"
+        required: true
+      label:
+        description: "Move label, e.g. 'basic groove, weight down'"
+        required: false
+        default: ""
+      source_note:
+        description: "Provenance note, e.g. 'house source 1 of 9' -- never the video itself"
+        required: false
+        default: ""
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install mediapipe yt-dlp opencv-python-headless
+
+      - name: Extract pose landmarks
+        run: |
+          python3 tools/pose-extraction/extract_pose.py \
+            "${{ inputs.url }}" \
+            "${{ inputs.timestamp }}" \
+            out/pose.json \
+            --label "${{ inputs.label }}" \
+            --source-note "${{ inputs.source_note }}"
+
+      - name: Upload landmark JSON only
+        uses: actions/upload-artifact@v4
+        with:
+          name: pose-landmarks
+          path: out/pose.json
+          retention-days: 7
