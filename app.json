@@ -25,7 +25,9 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "permissions": [
-        "android.permission.CAMERA"
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "package": "com.metavitae.orbgroove"
     },
@@ -66,8 +68,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "06f47422-a72e-4310-ab7d-ac2db1b5936c"
+        "projectId": "e3695443-8dc0-484b-a462-44af0667394e"
       }
-    }
+    },
+    "owner": "metavitae"
   }
 }
