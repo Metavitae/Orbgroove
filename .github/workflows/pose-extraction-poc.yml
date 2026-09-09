@@ -6,26 +6,19 @@ name: Pose extraction (Solo mode PoC)
 #
 # The download+frame-grab half runs locally instead (`extract_pose.py grab`)
 # because YouTube's bot-detection blocks video downloads from GitHub-hosted
-# runner IPs. So the frame this job detects on is committed to whatever
-# branch triggers this workflow -- a scratch frame image, checked in only
-# long enough for this job to read it, then deleted from the branch
-# afterward. The source video itself is never downloaded here and never
-# committed anywhere.
+# runner IPs. So the frames this job detects on are committed to whatever
+# branch triggers this workflow -- scratch frame images, checked in only
+# long enough for this job to read them, then deleted from the branch
+# afterward. The source videos themselves are never downloaded here and
+# never committed anywhere.
 
 on:
   workflow_dispatch:
     inputs:
-      frame_path:
-        description: "Path (in this branch) to the extracted frame JPG"
+      batch_dir:
+        description: "Directory (in this branch) of extracted frame JPGs to batch-detect"
         required: true
-      label:
-        description: "Move label, e.g. 'basic groove, weight down'"
-        required: false
-        default: ""
-      source_note:
-        description: "Provenance note, e.g. 'house source 1 of 9' -- never the video itself"
-        required: false
-        default: ""
+        default: "tools/pose-extraction/batch_house"
 
 jobs:
   detect:
@@ -43,17 +36,13 @@ jobs:
       - name: Install dependencies
         run: pip install mediapipe
 
-      - name: Detect pose landmarks
+      - name: Batch-detect pose landmarks
         run: |
-          python3 tools/pose-extraction/extract_pose.py detect \
-            "${{ inputs.frame_path }}" \
-            out/pose.json \
-            --label "${{ inputs.label }}" \
-            --source-note "${{ inputs.source_note }}"
+          python3 tools/pose-extraction/batch_detect.py "${{ inputs.batch_dir }}" out
 
       - name: Upload landmark JSON only
         uses: actions/upload-artifact@v4
         with:
-          name: pose-landmarks
-          path: out/pose.json
+          name: pose-landmarks-batch
+          path: out/
           retention-days: 7
