@@ -11,8 +11,7 @@ export default function Index() {
         <Text style={{ color: colors.mint }}>Orb</Text>
         <Text style={{ color: colors.pink }}>groove</Text>
       </Text>
-      <Text numberOfLines={1} adjustsFontSizeToFit style={{ color: colors.mintDim, fontSize: 16, marginTop: 8, fontStyle: "italic", width: "100%", textAlign: "center" }}>How Do You Dance?</Text>
-      <GradientButton label="START GAME" onPress={() => router.push("/gamemode")} style={{ marginTop: 60 }} />
+      <GradientButton label="START GAME" onPress={() => router.push("/gamemode")} style={{ marginTop: 40 }} />
       <TouchableOpacity onPress={() => router.push("/pose-test")} style={{ marginTop: 20 }}>
         <Text style={{ color: colors.mintDim, fontSize: 12, opacity: 0.5 }}>pose test (dev)</Text>
       </TouchableOpacity>
