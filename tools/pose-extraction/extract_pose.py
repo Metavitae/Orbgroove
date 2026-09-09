@@ -55,14 +55,19 @@ LANDMARK_NAMES = [
 
 def download_video(url: str, dest_dir: str) -> str:
     out_path = os.path.join(dest_dir, "source.mp4")
-    subprocess.run(
+    result = subprocess.run(
         [
             "yt-dlp", "-f", "mp4[height<=720]/mp4/best",
+            "--extractor-args", "youtube:player_client=android",
             "-o", out_path, url,
         ],
-        check=True,
         capture_output=True,
+        text=True,
     )
+    if result.returncode != 0:
+        print(result.stdout, file=sys.stderr)
+        print(result.stderr, file=sys.stderr)
+        result.check_returncode()
     return out_path
 
 
