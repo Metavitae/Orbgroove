@@ -1,6 +1,7 @@
 import { Text, View, Animated, ImageBackground } from "react-native";
 import { useRouter } from "expo-router";
 import { useState, useEffect, useRef } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGame } from "./context/GameContext";
 import { GradientButton } from "./components/GradientButton";
 import { OutlineButton } from "./components/OutlineButton";
@@ -8,6 +9,7 @@ import { colors } from "./theme";
 
 export default function Reveal() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const {
     players,
     currentPlayer,
@@ -77,7 +79,7 @@ export default function Reveal() {
     <ImageBackground
       source={require("../assets/images/bg_reveal.jpg")}
       resizeMode="cover"
-      style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 24 }}
+      style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 24, paddingBottom: 24 + insets.bottom }}
     >
       <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(6,20,15,0.4)" }} pointerEvents="none" />
 
@@ -107,18 +109,22 @@ export default function Reveal() {
       )}
 
       {phase === "scores" && (
-        <View style={{ width: "100%", alignItems: "center" }}>
-          <Text style={{ color: colors.mint, fontSize: 20, fontWeight: "700", marginBottom: 20, textAlign: "center" }}>{currentPlayer ? currentPlayer.name : ""}</Text>
-          <View style={{ flexDirection: "row", width: "100%", height: 300, marginBottom: 32 }}>
-            <View style={{ flexDirection: "row", flex: 1, alignItems: "flex-end", height: 300 }}>
-              <View style={{ flex: 1, alignItems: "center", marginRight: 12 }}>
-                <View style={{ width: 44, height: 220, backgroundColor: colors.card, borderRadius: 8, justifyContent: "flex-end", overflow: "hidden" }}>
+        // flex:1 (not a fixed/centered height) so this always fills exactly the
+        // space available under the safe-area padding above -- the chart area
+        // below is flex-based too, so on a short landscape screen it shrinks
+        // instead of pushing the NEXT button past the bottom edge.
+        <View style={{ flex: 1, width: "100%", alignItems: "center", justifyContent: "space-between" }}>
+          <Text style={{ color: colors.mint, fontSize: 20, fontWeight: "700", marginBottom: 12, textAlign: "center" }}>{currentPlayer ? currentPlayer.name : ""}</Text>
+          <View style={{ flexDirection: "row", width: "100%", flex: 1, minHeight: 0 }}>
+            <View style={{ flexDirection: "row", flex: 1, alignItems: "flex-end" }}>
+              <View style={{ flex: 1, alignItems: "center", marginRight: 12, height: "100%" }}>
+                <View style={{ width: 44, flex: 1, backgroundColor: colors.card, borderRadius: 8, justifyContent: "flex-end", overflow: "hidden" }}>
                   <Animated.View style={{ width: 44, height: rhythmHeight, backgroundColor: colors.cyan }} />
                 </View>
                 <Text style={{ color: colors.mint, fontSize: 12, letterSpacing: 2, marginTop: 8, textTransform: "uppercase" }}>Rhythm</Text>
               </View>
-              <View style={{ flex: 1, alignItems: "center" }}>
-                <View style={{ width: 44, height: 220, backgroundColor: colors.card, borderRadius: 8, justifyContent: "flex-end", overflow: "hidden" }}>
+              <View style={{ flex: 1, alignItems: "center", height: "100%" }}>
+                <View style={{ width: 44, flex: 1, backgroundColor: colors.card, borderRadius: 8, justifyContent: "flex-end", overflow: "hidden" }}>
                   <Animated.View style={{ width: 44, height: physHeight, backgroundColor: colors.pink }} />
                 </View>
                 <Text style={{ color: colors.mint, fontSize: 12, letterSpacing: 2, marginTop: 8, textTransform: "uppercase" }}>Moves</Text>
@@ -130,7 +136,7 @@ export default function Reveal() {
               </Animated.Text>
             </View>
           </View>
-          <GradientButton label="NEXT" onPress={handleNext} style={{ width: "100%" }} />
+          <GradientButton label="NEXT" onPress={handleNext} style={{ width: "100%", marginTop: 16 }} />
         </View>
       )}
 

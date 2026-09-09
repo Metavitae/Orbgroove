@@ -1,12 +1,14 @@
 import { Text, View, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GradientButton } from "./components/GradientButton";
 import { colors } from "./theme";
 
 export default function Index() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.bg, paddingHorizontal: 40 }}>
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.bg, paddingHorizontal: 40, paddingBottom: insets.bottom }}>
       <Text numberOfLines={1} adjustsFontSizeToFit style={{ fontSize: 60, fontWeight: "700", width: "100%", textAlign: "center" }}>
         <Text style={{ color: colors.mint }}>Orb</Text>
         <Text style={{ color: colors.pink }}>groove</Text>

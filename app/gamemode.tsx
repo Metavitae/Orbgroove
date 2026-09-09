@@ -1,6 +1,7 @@
 import { Text, View, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { useState } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGame } from "./context/GameContext";
 import type { GameMode } from "./context/GameContext";
 import { GradientButton } from "./components/GradientButton";
@@ -11,6 +12,7 @@ const roundOptions = [3, 5, 7];
 
 export default function GameMode() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { setRoundCount } = useGame();
   const [step, setStep] = useState<"mode" | "rounds">("mode");
   const [selectedMode, setSelectedMode] = useState<GameMode | null>(null);
@@ -26,7 +28,7 @@ export default function GameMode() {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.bg, padding: 24 }}>
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.bg, padding: 24, paddingBottom: 24 + insets.bottom }}>
       {step === "mode" && (
         <View style={{ width: "100%", alignItems: "center" }}>
           <Text style={{ color: colors.pink, fontSize: 13, letterSpacing: 4, textTransform: "uppercase", marginBottom: 16 }}>Game Mode</Text>

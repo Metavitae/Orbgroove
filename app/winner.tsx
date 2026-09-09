@@ -1,12 +1,14 @@
 import { Text, View, TouchableOpacity, Animated, ImageBackground } from "react-native";
 import { useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGame } from "./context/GameContext";
 import { GradientButton } from "./components/GradientButton";
 import { colors } from "./theme";
 
 export default function Winner() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { mode, players, resetGame } = useGame();
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -41,7 +43,7 @@ export default function Winner() {
     <ImageBackground
       source={require("../assets/images/bg_winner.jpg")}
       resizeMode="cover"
-      style={{ flex: 1, justifyContent: "center", alignItems: "center", paddingHorizontal: 20, paddingVertical: 16 }}
+      style={{ flex: 1, justifyContent: "center", alignItems: "center", paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16 + insets.bottom }}
     >
       <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(6,20,15,0.35)" }} pointerEvents="none" />
       <Animated.View style={{ alignItems: "center", transform: [{ scale: scaleAnim }], marginBottom: 20 }}>

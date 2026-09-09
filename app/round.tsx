@@ -1,6 +1,7 @@
 import { Text, View, Animated, Easing, ImageBackground } from "react-native";
 import { useRouter } from "expo-router";
 import { useState, useEffect, useRef } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGame } from "./context/GameContext";
 import { GradientButton } from "./components/GradientButton";
 import { colors } from "./theme";
@@ -40,6 +41,7 @@ const countries = [
 
 export default function Round() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { currentPlayer, currentRoundIndex, roundCount, currentCountry, setCurrentCountry, usedCountries, markCountryUsed } = useGame();
   const [phase, setPhase] = useState("spinning");
   const spinAnim = useRef(new Animated.Value(0)).current;
@@ -80,7 +82,7 @@ export default function Round() {
     <ImageBackground
       source={require("../assets/images/bg_round_intro.jpg")}
       resizeMode="cover"
-      style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 24 }}
+      style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 24, paddingBottom: 24 + insets.bottom }}
     >
       <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(6,20,15,0.4)" }} pointerEvents="none" />
       {phase === "spinning" && (

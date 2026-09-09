@@ -1,6 +1,7 @@
 import { Text, View, Animated, StyleSheet, ImageBackground } from "react-native";
 import { useRouter } from "expo-router";
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GradientButton } from "./components/GradientButton";
 import { colors } from "./theme";
 import { useAudioRecorder, useAudioRecorderState, RecordingPresets } from "expo-audio";
@@ -28,6 +29,7 @@ function sleep(ms: number) {
 
 export default function Recording() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { currentPlayer, currentCountry, currentPlayerIndex, mode, addCheerScore } = useGame();
   const [phase, setPhase] = useState("countdown");
   const [count, setCount] = useState(3);
@@ -220,7 +222,7 @@ export default function Recording() {
     <ImageBackground
       source={require("../assets/images/bg_recording.jpg")}
       resizeMode="cover"
-      style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 24 }}
+      style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 24, paddingBottom: 24 + insets.bottom }}
     >
       {showCamera && (
         <Camera

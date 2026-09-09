@@ -1,17 +1,19 @@
 import { Text, View } from "react-native";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGame } from "./context/GameContext";
 import { GradientButton } from "./components/GradientButton";
 import { colors } from "./theme";
 
 export default function Leaderboard() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { players, currentRoundIndex } = useGame();
 
   const sorted = [...players].sort((a, b) => b.score - a.score);
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", backgroundColor: colors.bg, padding: 14 }}>
+    <View style={{ flex: 1, justifyContent: "center", backgroundColor: colors.bg, padding: 14, paddingBottom: 14 + insets.bottom }}>
       <Text style={{ color: colors.pink, fontSize: 10, letterSpacing: 3, textTransform: "uppercase", marginBottom: 4, textAlign: "center" }}>After Round {currentRoundIndex}</Text>
       <Text style={{ color: colors.mint, fontSize: 20, fontStyle: "italic", marginBottom: 8, textAlign: "center" }}>Leaderboard</Text>
       {sorted.map((p, i) => (

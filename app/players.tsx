@@ -1,6 +1,7 @@
 import { Text, View, TouchableOpacity, LayoutChangeEvent } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGame, MAX_PLAYERS } from "./context/GameContext";
 import type { PlayerType } from "./context/GameContext";
 import { GradientButton } from "./components/GradientButton";
@@ -37,6 +38,7 @@ function isValidNameList(value: unknown): value is string[] {
 
 export default function Players() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { mode: modeParam } = useLocalSearchParams<{ mode?: string }>();
   const { players, addPlayer, mode, setMode } = useGame();
   // Crowd mode gets a one-time, vague heads-up before the roster starts —
@@ -135,7 +137,7 @@ export default function Players() {
   const [headerHeight, setHeaderHeight] = useState<number | null>(null);
   const [shuffleHeight, setShuffleHeight] = useState<number | null>(null);
   const [rowHeight, setRowHeight] = useState<number | null>(null);
-  const SCREEN_PADDING = 40; // root View's padding: 20 top + 20 bottom
+  const SCREEN_PADDING = 40 + insets.bottom; // root View's padding: 20 top + 20 bottom + safe-area bottom inset
   const HEADER_MARGIN_BOTTOM = 10;
   const SHUFFLE_MARGIN_TOP = 8;
   const ROW_MARGIN_BOTTOM = 6;
@@ -155,7 +157,7 @@ export default function Players() {
 
   return (
     <View
-      style={{ flex: 1, backgroundColor: colors.bg, padding: 20, justifyContent: "center" }}
+      style={{ flex: 1, backgroundColor: colors.bg, padding: 20, paddingBottom: 20 + insets.bottom, justifyContent: "center" }}
       onLayout={(e: LayoutChangeEvent) => setScreenHeight(e.nativeEvent.layout.height)}
     >
       {step === "announce" && (
