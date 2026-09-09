@@ -1,4 +1,4 @@
-import { Text, View, Animated, StyleSheet } from "react-native";
+import { Text, View, Animated, StyleSheet, ImageBackground } from "react-native";
 import { useRouter } from "expo-router";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { GradientButton } from "./components/GradientButton";
@@ -217,7 +217,11 @@ export default function Recording() {
   const showCamera = phase === "recording" && hasCameraPermission && cameraDevice != null;
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.bg, padding: 24 }}>
+    <ImageBackground
+      source={require("../assets/images/bg_recording.jpg")}
+      resizeMode="cover"
+      style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 24 }}
+    >
       {showCamera && (
         <Camera
           style={StyleSheet.absoluteFillObject}
@@ -240,9 +244,15 @@ export default function Recording() {
           photo={true}
         />
       )}
-      {showCamera && (
-        <View style={[StyleSheet.absoluteFillObject, { backgroundColor: "rgba(6,20,15,0.45)" }]} pointerEvents="none" />
-      )}
+      {/* Scrim over the stage backdrop, always on so the countdown/dance-name
+          text stays legible whether or not the camera is active. */}
+      <View
+        style={[
+          StyleSheet.absoluteFillObject,
+          { backgroundColor: showCamera ? "rgba(6,20,15,0.45)" : "rgba(6,20,15,0.55)" },
+        ]}
+        pointerEvents="none"
+      />
       {phase === "countdown" && (
         <View style={{ alignItems: "center" }}>
           <Text style={{ color: colors.pink, fontSize: 13, letterSpacing: 4, textTransform: "uppercase", marginBottom: 40 }}>
@@ -275,6 +285,6 @@ export default function Recording() {
           />
         </View>
       )}
-    </View>
+    </ImageBackground>
   );
 }

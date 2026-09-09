@@ -1,4 +1,4 @@
-import { Text, View, TouchableOpacity, Animated } from "react-native";
+import { Text, View, TouchableOpacity, Animated, ImageBackground } from "react-native";
 import { useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
 import { useGame } from "./context/GameContext";
@@ -38,7 +38,12 @@ export default function Winner() {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.bg, paddingHorizontal: 20, paddingVertical: 16 }}>
+    <ImageBackground
+      source={require("../assets/images/bg_winner.jpg")}
+      resizeMode="cover"
+      style={{ flex: 1, justifyContent: "center", alignItems: "center", paddingHorizontal: 20, paddingVertical: 16 }}
+    >
+      <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(6,20,15,0.35)" }} pointerEvents="none" />
       <Animated.View style={{ alignItems: "center", transform: [{ scale: scaleAnim }], marginBottom: 20 }}>
         <Text style={{ fontSize: 52 }}>🏆</Text>
         <Text style={{ color: colors.pink, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginTop: 10, marginBottom: 4 }}>Score Champion</Text>
@@ -61,6 +66,6 @@ export default function Winner() {
       <TouchableOpacity onPress={handleExit} style={{ marginTop: 10, alignItems: "center", padding: 10 }}>
         <Text style={{ color: colors.mintDim, fontSize: 12, letterSpacing: 3, textTransform: "uppercase" }}>Exit to Menu</Text>
       </TouchableOpacity>
-    </View>
+    </ImageBackground>
   );
 }

@@ -1,4 +1,4 @@
-import { Text, View, Animated, Easing } from "react-native";
+import { Text, View, Animated, Easing, ImageBackground } from "react-native";
 import { useRouter } from "expo-router";
 import { useState, useEffect, useRef } from "react";
 import { useGame } from "./context/GameContext";
@@ -77,7 +77,12 @@ export default function Round() {
   const spin = spinAnim.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "360deg"] });
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.bg, padding: 24 }}>
+    <ImageBackground
+      source={require("../assets/images/bg_round_intro.jpg")}
+      resizeMode="cover"
+      style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 24 }}
+    >
+      <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(6,20,15,0.4)" }} pointerEvents="none" />
       {phase === "spinning" && (
         <View style={{ alignItems: "center" }}>
           <Text style={{ color: colors.pink, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8 }}>
@@ -97,6 +102,6 @@ export default function Round() {
           <GradientButton label="I'M READY" onPress={() => router.push("/recording")} />
         </View>
       )}
-    </View>
+    </ImageBackground>
   );
 }

@@ -1,4 +1,4 @@
-import { Text, View, Animated } from "react-native";
+import { Text, View, Animated, ImageBackground } from "react-native";
 import { useRouter } from "expo-router";
 import { useState, useEffect, useRef } from "react";
 import { useGame } from "./context/GameContext";
@@ -74,7 +74,12 @@ export default function Reveal() {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.bg, padding: 24 }}>
+    <ImageBackground
+      source={require("../assets/images/bg_reveal.jpg")}
+      resizeMode="cover"
+      style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 24 }}
+    >
+      <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(6,20,15,0.4)" }} pointerEvents="none" />
 
       {phase === "suspense" && (
         <View style={{ alignItems: "center" }}>
@@ -129,6 +134,6 @@ export default function Reveal() {
         </View>
       )}
 
-    </View>
+    </ImageBackground>
   );
 }
