@@ -1,21 +1,22 @@
 name: Pose extraction (Solo mode PoC)
 
-# Runs the paused-frame pose-extraction pipeline (tools/pose-extraction/) on a
-# GitHub-hosted runner instead of locally, because mediapipe's wheel requires
-# AVX and the local dev machine's CPU doesn't support it. Downloads a
-# reference video to the runner's scratch disk, grabs one frame, runs
-# MediaPipe Pose Landmarker on it, uploads ONLY the resulting landmark JSON
-# as an artifact, then the runner (and the video with it) is torn down --
-# nothing about the source video is ever committed or persisted.
+# Runs the MediaPipe detection half of the pose-extraction pipeline
+# (tools/pose-extraction/) on a GitHub-hosted runner, because mediapipe's
+# wheel requires AVX and the local dev machine's CPU doesn't have it.
+#
+# The download+frame-grab half runs locally instead (`extract_pose.py grab`)
+# because YouTube's bot-detection blocks video downloads from GitHub-hosted
+# runner IPs. So the frame this job detects on is committed to whatever
+# branch triggers this workflow -- a scratch frame image, checked in only
+# long enough for this job to read it, then deleted from the branch
+# afterward. The source video itself is never downloaded here and never
+# committed anywhere.
 
 on:
   workflow_dispatch:
     inputs:
-      url:
-        description: "Reference video URL"
-        required: true
-      timestamp:
-        description: "Timestamp in seconds to grab the pose from"
+      frame_path:
+        description: "Path (in this branch) to the extracted frame JPG"
         required: true
       label:
         description: "Move label, e.g. 'basic groove, weight down'"
@@ -27,7 +28,7 @@ on:
         default: ""
 
 jobs:
-  extract:
+  detect:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,14 +37,16 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
-        run: pip install mediapipe yt-dlp opencv-python-headless
+      - name: Install system GL libs (mediapipe's shared lib needs these even headless)
+        run: sudo apt-get update && sudo apt-get install -y libegl1 libgles2 libgl1
 
-      - name: Extract pose landmarks
+      - name: Install dependencies
+        run: pip install mediapipe
+
+      - name: Detect pose landmarks
         run: |
-          python3 tools/pose-extraction/extract_pose.py \
-            "${{ inputs.url }}" \
-            "${{ inputs.timestamp }}" \
+          python3 tools/pose-extraction/extract_pose.py detect \
+            "${{ inputs.frame_path }}" \
             out/pose.json \
             --label "${{ inputs.label }}" \
             --source-note "${{ inputs.source_note }}"
