@@ -1,22 +1,28 @@
 import subprocess, sys, os
 
 VIDEOS = [
-    ("8ARSfyJmag4", 882),
-    ("rH9mmSiKUqQ", 1227),
-    ("TNwsQgRsr3o", 428),
-    ("wHGm97OcAB8", 245),
-    ("GcW3-E9-U40", 568),
-    ("kruB90MMCeg", 280),
-    ("CHYZP_U7e2U", 365),
-    ("UTFZ9AR1gUQ", 3563),
+    ("DEWpw4n8Lkw", 1444, None),
+    ("ujREEgxEP7g", 386, None),
+    ("Z3Z6Qii-g2Y", 480, None),
+    ("J_wSE2qaVFA", 885, None),
+    ("OAkahDbenks", 1139, None),
+    ("kmcSGTc2DAI", 4, "shorts"),
+    ("Xgsk7yvSiPg", 516, None),
+    ("1sD51hC0yRg", 763, None),
+    ("8ln8T3yQ9bU", 989, None),
 ]
 
 OUT = "candidates"
 os.makedirs(OUT, exist_ok=True)
 
-for vid, dur in VIDEOS:
-    url = f"https://youtube.com/watch?v={vid}"
-    fracs = [0.25, 0.5, 0.75] if dur < 700 else [0.08, 0.2, 0.35]
+for vid, dur, kind in VIDEOS:
+    url = f"https://youtube.com/shorts/{vid}" if kind == "shorts" else f"https://youtube.com/watch?v={vid}"
+    if dur <= 10:
+        fracs = [0.3, 0.6]
+    elif dur < 700:
+        fracs = [0.15, 0.4, 0.65]
+    else:
+        fracs = [0.08, 0.2, 0.35]
     for f in fracs:
         t = round(dur * f, 1)
         out_path = os.path.join(OUT, f"{vid}_{t}.jpg")
