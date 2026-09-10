@@ -1,15 +1,15 @@
 import subprocess, sys, os
 
 VIDEOS = [
-    ("-X6eHHeqHt0", 1135, None),
-    ("QjZ6qJJj8sM", 331, None),
-    ("A-_1Pe4zEfA", 73, None),
-    ("hENU46cW7_0", 922, None),
-    ("fs7Qb23LEjM", 952, None),
-    ("Rp7BtrXNwmM", 253, None),
+    ("oRuNzDEu6Xg", 1385, None),
+    ("8Ptm29ovWS8", 121, None),
+    ("VMD9xiPIntA", 457, None),
+    ("6Wm44LrarYI", 239, None),
+    ("eTJ5wVNt9Fk", 335, None),
+    ("stduQnqTEH4", 774, None),
 ]
 
-OUT = "candidates"
+OUT = "batch_waltz"
 os.makedirs(OUT, exist_ok=True)
 
 for vid, dur, kind in VIDEOS:

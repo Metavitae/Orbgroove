@@ -6,6 +6,22 @@ import { useGame } from "./context/GameContext";
 import { GradientButton } from "./components/GradientButton";
 import { OutlineButton } from "./components/OutlineButton";
 import { colors } from "./theme";
+import { genreForDance } from "./lib/danceGenreMap";
+import { computeMovesScore, computeRhythmScore, type Pose } from "./lib/danceScoring";
+import poseReferenceData from "../assets/data/pose-reference.json";
+
+const REFERENCE_POSES = poseReferenceData as Record<string, { label: string; landmarks: Pose }[]>;
+
+// Old random ranges, kept as the fallback for any dance without reference
+// pose data yet (see app/lib/danceGenreMap.ts) and as the floor/ceiling feel
+// for real scores below, so the UI's bar-fill math (rhythmScore/40,
+// physScore/60) keeps behaving the same regardless of which path scored.
+function randomRhythmScore() {
+  return Math.floor(Math.random() * 40) + 20;
+}
+function randomPhysScore() {
+  return Math.floor(Math.random() * 60) + 20;
+}
 
 export default function Reveal() {
   const router = useRouter();
@@ -16,6 +32,8 @@ export default function Reveal() {
     currentPlayerIndex,
     currentRoundIndex,
     roundCount,
+    currentCountry,
+    capturedFrames,
     addScore,
     nextPlayerTurn,
     nextRound,
@@ -26,8 +44,24 @@ export default function Reveal() {
   const physAnim = useRef(new Animated.Value(0)).current;
   const textAnim = useRef(new Animated.Value(0)).current;
 
-  const [rhythmScore] = useState(() => Math.floor(Math.random() * 40) + 20);
-  const [physScore] = useState(() => Math.floor(Math.random() * 60) + 20);
+  // Real scoring when the round's dance has reference pose data (see
+  // app/lib/danceGenreMap.ts) and the recording actually captured usable
+  // frames; falls back to the original random placeholder otherwise, so an
+  // uncovered dance (most of the 32-country list, still) plays exactly like
+  // it did before this was wired up rather than scoring everyone a flat 0.
+  const [rhythmScore] = useState(() => {
+    const rhythmNorm = computeRhythmScore(capturedFrames);
+    return rhythmNorm !== null ? Math.round(rhythmNorm * 40) + 20 : randomRhythmScore();
+  });
+  const [physScore] = useState(() => {
+    const genre = currentCountry ? genreForDance(currentCountry.dance) : null;
+    const referencePoses = genre ? REFERENCE_POSES[genre]?.map(p => p.landmarks) ?? [] : [];
+    const movesNorm =
+      referencePoses.length > 0
+        ? computeMovesScore(capturedFrames.map(f => f.pose), referencePoses)
+        : null;
+    return movesNorm !== null ? Math.round(movesNorm * 60) + 20 : randomPhysScore();
+  });
   const scoredRef = useRef(false);
 
   useEffect(() => {

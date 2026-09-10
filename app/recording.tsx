@@ -30,7 +30,7 @@ function sleep(ms: number) {
 export default function Recording() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { currentPlayer, currentCountry, currentPlayerIndex, mode, addCheerScore } = useGame();
+  const { currentPlayer, currentCountry, currentPlayerIndex, mode, addCheerScore, setCapturedFrames } = useGame();
   const [phase, setPhase] = useState("countdown");
   const [count, setCount] = useState(3);
   const [timeLeft, setTimeLeft] = useState(30);
@@ -57,9 +57,9 @@ export default function Recording() {
 
   // Pose-detection capture (ported from the standalone app/pose-test.tsx
   // PoC, confirmed working there). Landmark frames accumulate here for the
-  // full recording window; scoring off this data isn't wired up yet —
-  // reveal.tsx still generates rhythm/physicality scores randomly. This is
-  // step one: get real landmark capture running live during gameplay.
+  // full recording window in a ref (not state) so 20fps pose results don't
+  // trigger re-renders; handed off to GameContext ONCE when phase -> "done"
+  // below, for reveal.tsx's scoring (see app/lib/danceScoring.ts).
   const { hasPermission: hasCameraPermission, requestPermission: requestCameraPermission } = useCameraPermission();
   const capturedFramesRef = useRef<{ landmarks: Landmark[]; timestampMs: number }[]>([]);
 
@@ -206,7 +206,14 @@ export default function Recording() {
       ).start();
       const interval = setInterval(() => {
         setTimeLeft(prev => {
-          if (prev <= 1) { clearInterval(interval); setPhase("done"); return 0; }
+          if (prev <= 1) {
+            clearInterval(interval);
+            setCapturedFrames(
+              capturedFramesRef.current.map(f => ({ pose: f.landmarks, timestampMs: f.timestampMs }))
+            );
+            setPhase("done");
+            return 0;
+          }
           const next = prev - 1;
           if (next === 2) startClapometer();
           return next;

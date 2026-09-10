@@ -1,4 +1,7 @@
 import { createContext, useContext, useState, useMemo, ReactNode } from "react";
+import type { RawLandmark } from "../lib/danceScoring";
+
+export type CapturedFrame = { pose: RawLandmark[]; timestampMs: number };
 
 export type PlayerType = "solo" | "group";
 export type GameMode = "pure" | "crowd";
@@ -30,6 +33,10 @@ type GameState = {
   currentPlayerIndex: number;
   currentCountry: Country | null;
   usedCountries: string[];
+  // Set once, right when a recording ends (not per-frame -- see recording.tsx)
+  // and read once by reveal.tsx for the immediately following screen. Not
+  // meant to persist across rounds.
+  capturedFrames: CapturedFrame[];
 };
 
 type GameContextValue = GameState & {
@@ -44,6 +51,7 @@ type GameContextValue = GameState & {
   currentPlayer: Player | null;
   setCurrentCountry: (country: Country | null) => void;
   markCountryUsed: (name: string) => void;
+  setCapturedFrames: (frames: CapturedFrame[]) => void;
   addScore: (playerIndex: number, points: number) => void;
   addCheerScore: (playerIndex: number, points: number) => void;
   resetGame: () => void;
@@ -59,6 +67,7 @@ const initialState: GameState = {
   currentPlayerIndex: 0,
   currentCountry: null,
   usedCountries: [],
+  capturedFrames: [],
 };
 
 export function GameProvider({ children }: { children: ReactNode }) {
@@ -69,6 +78,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState<number>(initialState.currentPlayerIndex);
   const [currentCountry, setCurrentCountry] = useState<Country | null>(initialState.currentCountry);
   const [usedCountries, setUsedCountries] = useState<string[]>(initialState.usedCountries);
+  const [capturedFrames, setCapturedFrames] = useState<CapturedFrame[]>(initialState.capturedFrames);
 
   const addPlayer = (name: string, type: PlayerType) => {
     setPlayers(prev => (prev.length >= MAX_PLAYERS ? prev : [...prev, { name, type, score: 0, cheerScore: 0 }]));
@@ -106,6 +116,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setCurrentPlayerIndex(initialState.currentPlayerIndex);
     setCurrentCountry(initialState.currentCountry);
     setUsedCountries(initialState.usedCountries);
+    setCapturedFrames(initialState.capturedFrames);
   };
 
   const currentPlayer = players[currentPlayerIndex] ?? null;
@@ -119,6 +130,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       currentPlayerIndex,
       currentCountry,
       usedCountries,
+      capturedFrames,
       currentPlayer,
       setPlayers,
       addPlayer,
@@ -130,11 +142,12 @@ export function GameProvider({ children }: { children: ReactNode }) {
       nextPlayerTurn,
       setCurrentCountry,
       markCountryUsed,
+      setCapturedFrames,
       addScore,
       addCheerScore,
       resetGame,
     }),
-    [players, mode, roundCount, currentRoundIndex, currentPlayerIndex, currentCountry, usedCountries, currentPlayer]
+    [players, mode, roundCount, currentRoundIndex, currentPlayerIndex, currentCountry, usedCountries, capturedFrames, currentPlayer]
   );
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
