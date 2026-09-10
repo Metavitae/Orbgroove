@@ -1,12 +1,12 @@
 import subprocess, sys, os
 
 VIDEOS = [
-    ("5dnQivWT2lg", 1717, None),
-    ("Gefzja2rXBA", 1211, None),
-    ("XZMkyZk9Go8", 790, None),
-    ("fMaPnCN3ij0", 864, None),
-    ("IHIy0Fe12UY", 950, None),
-    ("op992EFqG24", 601, None),
+    ("-X6eHHeqHt0", 1135, None),
+    ("QjZ6qJJj8sM", 331, None),
+    ("A-_1Pe4zEfA", 73, None),
+    ("hENU46cW7_0", 922, None),
+    ("fs7Qb23LEjM", 952, None),
+    ("Rp7BtrXNwmM", 253, None),
 ]
 
 OUT = "candidates"

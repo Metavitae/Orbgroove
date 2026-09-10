@@ -1,2 +1,7 @@
 venv/
 out/
+candidates/
+batch_*/
+*.jpg
+*.jpeg
+*.png
