@@ -1,15 +1,12 @@
 import subprocess, sys, os
 
 VIDEOS = [
-    ("DEWpw4n8Lkw", 1444, None),
-    ("ujREEgxEP7g", 386, None),
-    ("Z3Z6Qii-g2Y", 480, None),
-    ("J_wSE2qaVFA", 885, None),
-    ("OAkahDbenks", 1139, None),
-    ("kmcSGTc2DAI", 4, "shorts"),
-    ("Xgsk7yvSiPg", 516, None),
-    ("1sD51hC0yRg", 763, None),
-    ("8ln8T3yQ9bU", 989, None),
+    ("5dnQivWT2lg", 1717, None),
+    ("Gefzja2rXBA", 1211, None),
+    ("XZMkyZk9Go8", 790, None),
+    ("fMaPnCN3ij0", 864, None),
+    ("IHIy0Fe12UY", 950, None),
+    ("op992EFqG24", 601, None),
 ]
 
 OUT = "candidates"
