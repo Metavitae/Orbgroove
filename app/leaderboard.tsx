@@ -1,4 +1,4 @@
-import { Text, View } from "react-native";
+import { Text, View, ImageBackground } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGame } from "./context/GameContext";
@@ -13,7 +13,12 @@ export default function Leaderboard() {
   const sorted = [...players].sort((a, b) => b.score - a.score);
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", backgroundColor: colors.bg, padding: 14, paddingBottom: 14 + Math.max(insets.bottom, 24) }}>
+    <ImageBackground
+      source={require("../assets/images/bg_leaderboard.jpg")}
+      resizeMode="cover"
+      style={{ flex: 1, justifyContent: "center", padding: 14, paddingBottom: 14 + Math.max(insets.bottom, 24) }}
+    >
+      <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(6,20,15,0.4)" }} pointerEvents="none" />
       <Text style={{ color: colors.pink, fontSize: 10, letterSpacing: 3, textTransform: "uppercase", marginBottom: 4, textAlign: "center" }}>After Round {currentRoundIndex}</Text>
       <Text style={{ color: colors.mint, fontSize: 20, fontStyle: "italic", marginBottom: 8, textAlign: "center" }}>Leaderboard</Text>
       {sorted.map((p, i) => (
@@ -27,6 +32,6 @@ export default function Leaderboard() {
         </View>
       ))}
       <GradientButton label="NEXT ROUND" onPress={() => router.push("/round")} style={{ width: "100%", marginTop: 10 }} />
-    </View>
+    </ImageBackground>
   );
 }
