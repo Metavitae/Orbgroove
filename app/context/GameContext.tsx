@@ -1,7 +1,12 @@
 import { createContext, useContext, useState, useMemo, ReactNode } from "react";
 import type { RawLandmark } from "../lib/danceScoring";
+import type { BeatGrid } from "../lib/danceMusic";
 
 export type CapturedFrame = { pose: RawLandmark[]; timestampMs: number };
+// Set alongside capturedFrames when the round's genre had a track to play
+// (see app/lib/danceMusic.ts) -- null otherwise, in which case scoring falls
+// back to the energy/oscillation rhythm proxy instead of real beat-alignment.
+export type DanceTrackInfo = { grid: BeatGrid; startTimestampMs: number };
 
 export type PlayerType = "solo" | "group";
 export type GameMode = "pure" | "crowd";
@@ -37,6 +42,7 @@ type GameState = {
   // and read once by reveal.tsx for the immediately following screen. Not
   // meant to persist across rounds.
   capturedFrames: CapturedFrame[];
+  danceTrack: DanceTrackInfo | null;
 };
 
 type GameContextValue = GameState & {
@@ -52,6 +58,7 @@ type GameContextValue = GameState & {
   setCurrentCountry: (country: Country | null) => void;
   markCountryUsed: (name: string) => void;
   setCapturedFrames: (frames: CapturedFrame[]) => void;
+  setDanceTrack: (track: DanceTrackInfo | null) => void;
   addScore: (playerIndex: number, points: number) => void;
   addCheerScore: (playerIndex: number, points: number) => void;
   resetGame: () => void;
@@ -68,6 +75,7 @@ const initialState: GameState = {
   currentCountry: null,
   usedCountries: [],
   capturedFrames: [],
+  danceTrack: null,
 };
 
 export function GameProvider({ children }: { children: ReactNode }) {
@@ -79,6 +87,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [currentCountry, setCurrentCountry] = useState<Country | null>(initialState.currentCountry);
   const [usedCountries, setUsedCountries] = useState<string[]>(initialState.usedCountries);
   const [capturedFrames, setCapturedFrames] = useState<CapturedFrame[]>(initialState.capturedFrames);
+  const [danceTrack, setDanceTrack] = useState<DanceTrackInfo | null>(initialState.danceTrack);
 
   const addPlayer = (name: string, type: PlayerType) => {
     setPlayers(prev => (prev.length >= MAX_PLAYERS ? prev : [...prev, { name, type, score: 0, cheerScore: 0 }]));
@@ -117,6 +126,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setCurrentCountry(initialState.currentCountry);
     setUsedCountries(initialState.usedCountries);
     setCapturedFrames(initialState.capturedFrames);
+    setDanceTrack(initialState.danceTrack);
   };
 
   const currentPlayer = players[currentPlayerIndex] ?? null;
@@ -131,6 +141,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       currentCountry,
       usedCountries,
       capturedFrames,
+      danceTrack,
       currentPlayer,
       setPlayers,
       addPlayer,
@@ -143,11 +154,12 @@ export function GameProvider({ children }: { children: ReactNode }) {
       setCurrentCountry,
       markCountryUsed,
       setCapturedFrames,
+      setDanceTrack,
       addScore,
       addCheerScore,
       resetGame,
     }),
-    [players, mode, roundCount, currentRoundIndex, currentPlayerIndex, currentCountry, usedCountries, capturedFrames, currentPlayer]
+    [players, mode, roundCount, currentRoundIndex, currentPlayerIndex, currentCountry, usedCountries, capturedFrames, danceTrack, currentPlayer]
   );
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

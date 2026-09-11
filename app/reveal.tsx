@@ -7,8 +7,10 @@ import { GradientButton } from "./components/GradientButton";
 import { OutlineButton } from "./components/OutlineButton";
 import { colors } from "./theme";
 import { genreForDance } from "./lib/danceGenreMap";
-import { computeMovesScore, computeRhythmScore, type Pose } from "./lib/danceScoring";
+import { computeMovesScore, computeRhythmScore, computeBeatAlignmentScore, type Pose } from "./lib/danceScoring";
 import poseReferenceData from "../assets/data/pose-reference.json";
+
+const RECORDING_WINDOW_SEC = 30;
 
 const REFERENCE_POSES = poseReferenceData as Record<string, { label: string; landmarks: Pose }[]>;
 
@@ -34,6 +36,7 @@ export default function Reveal() {
     roundCount,
     currentCountry,
     capturedFrames,
+    danceTrack,
     addScore,
     nextPlayerTurn,
     nextRound,
@@ -49,7 +52,17 @@ export default function Reveal() {
   // frames; falls back to the original random placeholder otherwise, so an
   // uncovered dance (most of the 32-country list, still) plays exactly like
   // it did before this was wired up rather than scoring everyone a flat 0.
+  //
+  // Rhythm specifically has three tiers, in order of preference: real
+  // beat-alignment against the track that actually played (danceTrack is
+  // only set when the round's genre had music -- see app/lib/danceMusic.ts
+  // and recording.tsx), then the energy/oscillation proxy for a genre with
+  // pose coverage but no music yet, then the plain random fallback.
   const [rhythmScore] = useState(() => {
+    const beatNorm = danceTrack
+      ? computeBeatAlignmentScore(capturedFrames, danceTrack.grid.beatTimesSec, danceTrack.startTimestampMs, RECORDING_WINDOW_SEC)
+      : null;
+    if (beatNorm !== null) return Math.round(beatNorm * 40) + 20;
     const rhythmNorm = computeRhythmScore(capturedFrames);
     return rhythmNorm !== null ? Math.round(rhythmNorm * 40) + 20 : randomRhythmScore();
   });

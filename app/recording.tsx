@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GradientButton } from "./components/GradientButton";
 import { colors } from "./theme";
-import { useAudioRecorder, useAudioRecorderState, RecordingPresets } from "expo-audio";
+import { useAudioRecorder, useAudioRecorderState, useAudioPlayer, RecordingPresets } from "expo-audio";
 import {
   Camera,
   useCameraDevice,
@@ -20,6 +20,8 @@ import {
 } from "react-native-mediapipe-posedetection";
 import { useGame } from "./context/GameContext";
 import { micPermission } from "./context/micPermission";
+import { genreForDance } from "./lib/danceGenreMap";
+import { pickTrackForGenre } from "./lib/danceMusic";
 
 const BASELINE_WINDOW_MS = 1000;
 
@@ -30,11 +32,23 @@ function sleep(ms: number) {
 export default function Recording() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { currentPlayer, currentCountry, currentPlayerIndex, mode, addCheerScore, setCapturedFrames } = useGame();
+  const { currentPlayer, currentCountry, currentPlayerIndex, mode, addCheerScore, setCapturedFrames, setDanceTrack } = useGame();
   const [phase, setPhase] = useState("countdown");
   const [count, setCount] = useState(3);
   const [timeLeft, setTimeLeft] = useState(30);
   const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  // Picked once per round mount, not re-randomized on re-render. Only 3
+  // genres have any sourced music today (house/hip-hop/afrobeats) -- see
+  // app/lib/danceMusic.ts; every other dance plays silent, same as before
+  // this was built, and reveal.tsx's rhythm scoring falls back to its
+  // energy/oscillation proxy accordingly.
+  const [track] = useState(() => {
+    const genre = currentCountry ? genreForDance(currentCountry.dance) : null;
+    return genre ? pickTrackForGenre(genre) : null;
+  });
+  const musicPlayer = useAudioPlayer(track?.source);
+  const musicStartTimestampRef = useRef<number | null>(null);
 
   // The whole screen (camera preview AND the overlaid countdown/dance-name
   // text, which VisionCamera never touches) was rendering sideways on this
@@ -181,6 +195,7 @@ export default function Recording() {
   useEffect(() => {
     return () => {
       finishClapometer();
+      if (track) musicPlayer.pause();
     };
   }, []);
 
@@ -204,12 +219,22 @@ export default function Recording() {
           Animated.timing(pulseAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
         ])
       ).start();
+      if (track) {
+        musicStartTimestampRef.current = Date.now();
+        musicPlayer.play();
+      }
       const interval = setInterval(() => {
         setTimeLeft(prev => {
           if (prev <= 1) {
             clearInterval(interval);
+            if (track) musicPlayer.pause();
             setCapturedFrames(
               capturedFramesRef.current.map(f => ({ pose: f.landmarks, timestampMs: f.timestampMs }))
+            );
+            setDanceTrack(
+              track && musicStartTimestampRef.current !== null
+                ? { grid: track.grid, startTimestampMs: musicStartTimestampRef.current }
+                : null
             );
             setPhase("done");
             return 0;

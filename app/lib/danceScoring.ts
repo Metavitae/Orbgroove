@@ -166,3 +166,80 @@ export function computeRhythmScore(capturedFrames: { pose: Pose; timestampMs: nu
   const oscillationScore = Math.min(1, oscillationRate / OSCILLATION_TARGET_PER_SEC);
   return energyScore * 0.5 + oscillationScore * 0.5;
 }
+
+// True beat-alignment scoring, used when the round actually played a track
+// with a known beat grid (see app/lib/danceMusic.ts). For each beat in the
+// grid that falls within the recording window, finds the closest moment of
+// peak movement in the captured take and scores how close it landed to that
+// beat -- this is the real "did you dance to the music" signal that
+// computeRhythmScore's energy/oscillation proxy above can only approximate
+// blindly. trackStartTimestampMs is the wall-clock Date.now() at the moment
+// playback started (see recording.tsx), used to convert each captured
+// frame's wall-clock timestamp into track-relative seconds.
+const BEAT_HIT_TOLERANCE_SEC = 0.25;
+// A frame counts as a "movement peak" candidate only if its normalized
+// displacement clears this floor -- otherwise near-silent hand-tremor noise
+// between real movements would count as hitting every beat.
+const PEAK_MIN_DISPLACEMENT = 0.02;
+
+export function computeBeatAlignmentScore(
+  capturedFrames: { pose: Pose; timestampMs: number }[],
+  beatTimesSec: number[],
+  trackStartTimestampMs: number,
+  recordingWindowSec: number
+): number | null {
+  const withNormalized = capturedFrames
+    .map(f => ({ pose: normalizePose(f.pose), timestampMs: f.timestampMs }))
+    .filter((f): f is { pose: NormalizedPose; timestampMs: number } => f.pose !== null)
+    .sort((a, b) => a.timestampMs - b.timestampMs);
+
+  if (withNormalized.length < 4) return null;
+
+  const beatsInWindow = beatTimesSec.filter(t => t >= 0 && t <= recordingWindowSec);
+  if (beatsInWindow.length === 0) return null;
+
+  // Movement-magnitude series in track-relative seconds.
+  const series: { trackTimeSec: number; displacement: number }[] = [];
+  for (let i = 1; i < withNormalized.length; i++) {
+    const prev = withNormalized[i - 1].pose;
+    const cur = withNormalized[i].pose;
+    let disp = 0, count = 0;
+    for (let j = 0; j < cur.length; j++) {
+      if (cur[j].w < MIN_VISIBILITY || prev[j].w < MIN_VISIBILITY) continue;
+      disp += Math.hypot(cur[j].x - prev[j].x, cur[j].y - prev[j].y);
+      count++;
+    }
+    if (count === 0) continue;
+    series.push({
+      trackTimeSec: (withNormalized[i].timestampMs - trackStartTimestampMs) / 1000,
+      displacement: disp / count,
+    });
+  }
+  if (series.length === 0) return null;
+
+  // Local-peak candidates: frames whose displacement exceeds both neighbors
+  // and the noise floor.
+  const peaks: number[] = [];
+  for (let i = 1; i < series.length - 1; i++) {
+    const { trackTimeSec, displacement } = series[i];
+    if (
+      displacement >= PEAK_MIN_DISPLACEMENT &&
+      displacement >= series[i - 1].displacement &&
+      displacement >= series[i + 1].displacement
+    ) {
+      peaks.push(trackTimeSec);
+    }
+  }
+  if (peaks.length === 0) return 0;
+
+  let total = 0;
+  for (const beat of beatsInWindow) {
+    let closest = Infinity;
+    for (const peak of peaks) {
+      const d = Math.abs(peak - beat);
+      if (d < closest) closest = d;
+    }
+    total += Math.exp(-closest / BEAT_HIT_TOLERANCE_SEC);
+  }
+  return total / beatsInWindow.length;
+}
