@@ -1,5 +1,5 @@
 import { Text, TouchableOpacity, StyleProp, ViewStyle, LayoutChangeEvent } from "react-native";
-import { colors } from "../theme";
+import { colors, fonts } from "../theme";
 
 export function OutlineButton({
   label,
@@ -31,13 +31,13 @@ export function OutlineButton({
       <Text
         style={
           plain
-            ? { color: colors.mint, fontSize: 14, fontWeight: "600" }
-            : { color: colors.mint, fontSize: 16, fontWeight: "700", letterSpacing: 3, textTransform: "uppercase" }
+            ? { color: colors.mint, fontSize: 14, fontFamily: fonts.displaySemiBold }
+            : { color: colors.mint, fontSize: 16, fontFamily: fonts.labelBold, letterSpacing: 3, textTransform: "uppercase" }
         }
       >
         {label}
       </Text>
-      {subtitle && <Text style={{ color: colors.mintDim, fontSize: 11, marginTop: 4, opacity: 0.85 }}>{subtitle}</Text>}
+      {subtitle && <Text style={{ color: colors.mintDim, fontSize: 11, fontFamily: fonts.labelRegular, marginTop: 4, opacity: 0.85 }}>{subtitle}</Text>}
     </TouchableOpacity>
   );
 }

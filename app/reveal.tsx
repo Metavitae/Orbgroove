@@ -1,11 +1,11 @@
-import { Text, View, Animated, ImageBackground } from "react-native";
+import { Text, View, Animated, ImageBackground, LayoutChangeEvent } from "react-native";
 import { useRouter } from "expo-router";
 import { useState, useEffect, useRef } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGame } from "./context/GameContext";
 import { GradientButton } from "./components/GradientButton";
 import { OutlineButton } from "./components/OutlineButton";
-import { colors } from "./theme";
+import { colors, fonts, textOnImageShadow } from "./theme";
 import { genreForDance } from "./lib/danceGenreMap";
 import { computeMovesScore, computeRhythmScore, computeBeatAlignmentScore, type Pose } from "./lib/danceScoring";
 import poseReferenceData from "../assets/data/pose-reference.json";
@@ -23,6 +23,36 @@ function randomRhythmScore() {
 }
 function randomPhysScore() {
   return Math.floor(Math.random() * 60) + 20;
+}
+
+// bg_reveal.jpg's native pixel dimensions, and the two LED-screen frame
+// outlines' bounding boxes within it (measured directly off the source
+// image, as fractions of its width/height) -- used below to place the
+// YOUR MOVES / PRO MOVES cards precisely inside those frames regardless of
+// how ImageBackground's resizeMode="cover" crops the art to fit the device.
+const BG_IMAGE_SIZE = { width: 1376, height: 768 };
+const LEFT_FRAME = { left: 102 / 1376, right: 713 / 1376, top: 144 / 768, bottom: 537 / 768 };
+const RIGHT_FRAME = { left: 722 / 1376, right: 1271 / 1376, top: 144 / 768, bottom: 537 / 768 };
+
+type FrameFractions = { left: number; right: number; top: number; bottom: number };
+
+// Mirrors resizeMode="cover"'s own crop math: the image is scaled up until it
+// fully covers the container on both axes, then centered, so whichever axis
+// overflows gets symmetric edges cropped off. Converts a frame's
+// image-relative fractions into container-relative pixels so a card can be
+// absolutely positioned to land exactly inside that frame's drawn outline.
+function frameRectInContainer(container: { width: number; height: number }, frame: FrameFractions) {
+  const scale = Math.max(container.width / BG_IMAGE_SIZE.width, container.height / BG_IMAGE_SIZE.height);
+  const displayedW = BG_IMAGE_SIZE.width * scale;
+  const displayedH = BG_IMAGE_SIZE.height * scale;
+  const cropX = (displayedW - container.width) / 2;
+  const cropY = (displayedH - container.height) / 2;
+  return {
+    left: frame.left * displayedW - cropX,
+    top: frame.top * displayedH - cropY,
+    width: (frame.right - frame.left) * displayedW,
+    height: (frame.bottom - frame.top) * displayedH,
+  };
 }
 
 export default function Reveal() {
@@ -43,6 +73,10 @@ export default function Reveal() {
     setCurrentPlayerIndex,
   } = useGame();
   const [phase, setPhase] = useState("suspense");
+  // Full ImageBackground box size (not the padded content area) -- needed to
+  // compute where the two LED-screen frames in bg_reveal.jpg actually land
+  // once resizeMode="cover" crops it to fit this device.
+  const [bgContainerSize, setBgContainerSize] = useState<{ width: number; height: number } | null>(null);
   const rhythmAnim = useRef(new Animated.Value(0)).current;
   const physAnim = useRef(new Animated.Value(0)).current;
   const textAnim = useRef(new Animated.Value(0)).current;
@@ -127,12 +161,42 @@ export default function Reveal() {
       source={require("../assets/images/bg_reveal.jpg")}
       resizeMode="cover"
       style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 24, paddingBottom: 24 + Math.max(insets.bottom, 24) }}
+      onLayout={(e: LayoutChangeEvent) => setBgContainerSize({ width: e.nativeEvent.layout.width, height: e.nativeEvent.layout.height })}
     >
       <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(6,20,15,0.4)" }} pointerEvents="none" />
 
+      {phase === "splitscreen" && bgContainerSize && (
+        <>
+          {[
+            { frame: LEFT_FRAME, emoji: "🕺", label: "YOUR MOVES", color: colors.mint },
+            { frame: RIGHT_FRAME, emoji: "💃", label: "PRO MOVES", color: colors.cyan },
+          ].map(({ frame, emoji, label, color }) => {
+            const rect = frameRectInContainer(bgContainerSize, frame);
+            return (
+              <View
+                key={label}
+                style={{
+                  position: "absolute",
+                  left: rect.left,
+                  top: rect.top,
+                  width: rect.width,
+                  height: rect.height,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+                pointerEvents="none"
+              >
+                <Text style={{ fontSize: 60 }}>{emoji}</Text>
+                <Text style={{ color, fontSize: 15, fontFamily: fonts.labelBold, marginTop: 12, letterSpacing: 2, ...textOnImageShadow }}>{label}</Text>
+              </View>
+            );
+          })}
+        </>
+      )}
+
       {phase === "suspense" && (
         <View style={{ alignItems: "center" }}>
-          <Text style={{ color: colors.pink, fontSize: 16, letterSpacing: 4, textTransform: "uppercase", marginBottom: 24 }}>Calculating...</Text>
+          <Text style={{ color: colors.pink, fontSize: 16, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", marginBottom: 24, ...textOnImageShadow }}>Calculating...</Text>
           <Text style={{ fontSize: 80 }}>⚡</Text>
         </View>
       )}
@@ -144,19 +208,15 @@ export default function Reveal() {
         // pushing SEE MY SCORE past the bottom edge on a shorter screen.
         <View style={{ flex: 1, width: "100%", alignItems: "center", justifyContent: "space-between" }}>
           <View style={{ alignItems: "center" }}>
-            <Text style={{ color: colors.mint, fontSize: 20, fontWeight: "700", marginBottom: 8, textAlign: "center" }}>{currentPlayer ? currentPlayer.name : ""}</Text>
-            <Text style={{ color: colors.pink, fontSize: 14, letterSpacing: 4, textTransform: "uppercase", textAlign: "center" }}>How did you do?</Text>
+            <Text style={{ color: colors.mint, fontSize: 20, fontFamily: fonts.displayBold, marginBottom: 8, textAlign: "center", ...textOnImageShadow }}>{currentPlayer ? currentPlayer.name : ""}</Text>
+            <Text style={{ color: colors.pink, fontSize: 14, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", textAlign: "center", ...textOnImageShadow }}>How did you do?</Text>
           </View>
-          <View style={{ flexDirection: "row", width: "100%", flex: 1, minHeight: 0, marginVertical: 16 }}>
-            <View style={{ flex: 1, backgroundColor: colors.card, justifyContent: "center", alignItems: "center", marginRight: 6, borderRadius: 14, borderWidth: 1, borderColor: colors.border }}>
-              <Text style={{ fontSize: 60 }}>🕺</Text>
-              <Text style={{ color: colors.mint, fontSize: 15, marginTop: 12, fontWeight: "700", letterSpacing: 2 }}>YOUR MOVES</Text>
-            </View>
-            <View style={{ flex: 1, backgroundColor: colors.card, justifyContent: "center", alignItems: "center", marginLeft: 6, borderRadius: 14, borderWidth: 1, borderColor: colors.border }}>
-              <Text style={{ fontSize: 60 }}>💃</Text>
-              <Text style={{ color: colors.cyan, fontSize: 15, marginTop: 12, fontWeight: "700", letterSpacing: 2 }}>PRO MOVES</Text>
-            </View>
-          </View>
+          {/* Spacer matching the two video-comparison cards' old flow height --
+              the actual cards are rendered as siblings below, absolutely
+              positioned to sit precisely inside the two LED-screen frame
+              outlines baked into bg_reveal.jpg (see FRAME_RECTS below), not
+              just centered/floating over the image. */}
+          <View style={{ flex: 1, minHeight: 0, marginVertical: 16 }} />
           <OutlineButton label="SEE MY SCORE" onPress={() => setPhase("scores")} style={{ paddingHorizontal: 32, paddingVertical: 14 }} />
         </View>
       )}
@@ -167,24 +227,24 @@ export default function Reveal() {
         // below is flex-based too, so on a short landscape screen it shrinks
         // instead of pushing the NEXT button past the bottom edge.
         <View style={{ flex: 1, width: "100%", alignItems: "center", justifyContent: "space-between" }}>
-          <Text style={{ color: colors.mint, fontSize: 20, fontWeight: "700", marginBottom: 12, textAlign: "center" }}>{currentPlayer ? currentPlayer.name : ""}</Text>
+          <Text style={{ color: colors.mint, fontSize: 20, fontFamily: fonts.displayBold, marginBottom: 12, textAlign: "center", ...textOnImageShadow }}>{currentPlayer ? currentPlayer.name : ""}</Text>
           <View style={{ flexDirection: "row", width: "100%", flex: 1, minHeight: 0 }}>
             <View style={{ flexDirection: "row", flex: 1, alignItems: "flex-end" }}>
               <View style={{ flex: 1, alignItems: "center", marginRight: 12, height: "100%" }}>
                 <View style={{ width: 44, flex: 1, backgroundColor: colors.card, borderRadius: 8, justifyContent: "flex-end", overflow: "hidden" }}>
                   <Animated.View style={{ width: 44, height: rhythmHeight, backgroundColor: colors.cyan }} />
                 </View>
-                <Text style={{ color: colors.mint, fontSize: 12, letterSpacing: 2, marginTop: 8, textTransform: "uppercase" }}>Rhythm</Text>
+                <Text style={{ color: colors.mint, fontSize: 12, fontFamily: fonts.labelMedium, letterSpacing: 2, marginTop: 8, textTransform: "uppercase", ...textOnImageShadow }}>Rhythm</Text>
               </View>
               <View style={{ flex: 1, alignItems: "center", height: "100%" }}>
                 <View style={{ width: 44, flex: 1, backgroundColor: colors.card, borderRadius: 8, justifyContent: "flex-end", overflow: "hidden" }}>
                   <Animated.View style={{ width: 44, height: physHeight, backgroundColor: colors.pink }} />
                 </View>
-                <Text style={{ color: colors.mint, fontSize: 12, letterSpacing: 2, marginTop: 8, textTransform: "uppercase" }}>Moves</Text>
+                <Text style={{ color: colors.mint, fontSize: 12, fontFamily: fonts.labelMedium, letterSpacing: 2, marginTop: 8, textTransform: "uppercase", ...textOnImageShadow }}>Moves</Text>
               </View>
             </View>
             <View style={{ flex: 1, alignItems: "center", justifyContent: "flex-end", paddingBottom: 28 }}>
-              <Animated.Text style={{ color: colors.pink, fontWeight: "700", textTransform: "uppercase", transform: [{ translateY: textTranslateY }], fontSize: textSize, letterSpacing: textLetterSpacing }}>
+              <Animated.Text style={{ color: colors.pink, fontFamily: fonts.displayBold, textTransform: "uppercase", transform: [{ translateY: textTranslateY }], fontSize: textSize, letterSpacing: textLetterSpacing, ...textOnImageShadow }}>
                 YOUR{"\n"}SCORE
               </Animated.Text>
             </View>

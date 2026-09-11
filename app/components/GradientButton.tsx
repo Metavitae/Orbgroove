@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { Text, TouchableOpacity, StyleProp, ViewStyle } from "react-native";
-import { colors } from "../theme";
+import { colors, fonts } from "../theme";
 
 export function GradientButton({
   label,
@@ -31,8 +31,8 @@ export function GradientButton({
           elevation: 6,
         }}
       >
-        <Text style={{ color: colors.darkText, fontSize: 16, fontWeight: "700", letterSpacing: 3 }}>{label}</Text>
-        {subtitle && <Text style={{ color: colors.darkText, fontSize: 12, marginTop: 4, opacity: 0.7 }}>{subtitle}</Text>}
+        <Text style={{ color: colors.darkText, fontSize: 16, fontFamily: fonts.labelBold, letterSpacing: 3 }}>{label}</Text>
+        {subtitle && <Text style={{ color: colors.darkText, fontSize: 12, fontFamily: fonts.labelRegular, marginTop: 4, opacity: 0.7 }}>{subtitle}</Text>}
       </LinearGradient>
     </TouchableOpacity>
   );

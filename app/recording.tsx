@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GradientButton } from "./components/GradientButton";
-import { colors } from "./theme";
+import { colors, fonts, textOnImageShadow } from "./theme";
 import { useAudioRecorder, useAudioRecorderState, useAudioPlayer, RecordingPresets } from "expo-audio";
 import {
   Camera,
@@ -289,10 +289,10 @@ export default function Recording() {
       />
       {phase === "countdown" && (
         <View style={{ alignItems: "center" }}>
-          <Text style={{ color: colors.pink, fontSize: 13, letterSpacing: 4, textTransform: "uppercase", marginBottom: 40 }}>
+          <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", marginBottom: 40, ...textOnImageShadow }}>
             {currentPlayer ? `${currentPlayer.name}, get in position!` : "Get in position!"}
           </Text>
-          <Text style={{ color: colors.mint, fontSize: 160, fontWeight: "700" }}>{count}</Text>
+          <Text style={{ color: colors.mint, fontSize: 160, fontFamily: fonts.displayBold, ...textOnImageShadow }}>{count}</Text>
         </View>
       )}
       {phase === "recording" && (
@@ -300,8 +300,8 @@ export default function Recording() {
           <Animated.View style={{ transform: [{ scale: pulseAnim }], marginBottom: 40 }}>
             <Text style={{ fontSize: 60 }}>🔴</Text>
           </Animated.View>
-          <Text style={{ color: colors.mint, fontSize: 100, fontWeight: "700" }}>{timeLeft}</Text>
-          <Text style={{ color: colors.pink, fontSize: 13, letterSpacing: 4, textTransform: "uppercase", marginTop: 16 }}>
+          <Text style={{ color: colors.mint, fontSize: 100, fontFamily: fonts.displayBold, ...textOnImageShadow }}>{timeLeft}</Text>
+          <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", marginTop: 16, ...textOnImageShadow }}>
             {currentCountry ? `${currentCountry.dance}!` : "Dance!"}
           </Text>
         </View>
@@ -309,7 +309,7 @@ export default function Recording() {
       {phase === "done" && (
         <View style={{ alignItems: "center" }}>
           <Text style={{ fontSize: 80, marginBottom: 24 }}>🎉</Text>
-          <Text style={{ color: colors.mint, fontSize: 32, fontWeight: "700", marginBottom: 48 }}>Time's up!</Text>
+          <Text style={{ color: colors.mint, fontSize: 32, fontFamily: fonts.displayBold, marginBottom: 48, ...textOnImageShadow }}>Time's up!</Text>
           <GradientButton
             label="SEE RESULTS"
             onPress={() => {
