@@ -157,7 +157,7 @@ export default function Players() {
 
   return (
     <ImageBackground
-      source={require("../assets/images/bg_setup.jpg")}
+      source={require("../assets/images/bg_pregame.jpg")}
       resizeMode="cover"
       style={{ flex: 1, padding: 20, paddingBottom: 20 + Math.max(insets.bottom, 24), justifyContent: "center" }}
       onLayout={(e: LayoutChangeEvent) => setScreenHeight(e.nativeEvent.layout.height)}

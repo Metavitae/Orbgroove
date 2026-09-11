@@ -9,7 +9,7 @@ export default function Index() {
   const insets = useSafeAreaInsets();
   return (
     <ImageBackground
-      source={require("../assets/images/bg_home.jpg")}
+      source={require("../assets/images/bg_pregame.jpg")}
       resizeMode="cover"
       style={{ flex: 1, justifyContent: "center", alignItems: "center", paddingHorizontal: 40, paddingBottom: Math.max(insets.bottom, 24) }}
     >
