@@ -1,7 +1,6 @@
 import { Stack } from "expo-router";
-import { useEffect, useCallback } from "react";
+import { useEffect } from "react";
 import * as ScreenOrientation from "expo-screen-orientation";
-import * as SplashScreen from "expo-splash-screen";
 import { Camera } from "react-native-vision-camera";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useFonts, Fredoka_400Regular, Fredoka_600SemiBold, Fredoka_700Bold } from "@expo-google-fonts/fredoka";
@@ -13,10 +12,13 @@ import {
 import { GameProvider } from "./context/GameContext";
 import { requestMicPermissionOnce } from "./context/micPermission";
 
-SplashScreen.preventAutoHideAsync();
-
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
+  // Deliberately not gating the whole app behind this (no "return null until
+  // loaded"): if font loading ever stalls or errors, that must never turn
+  // into a permanently blank screen. Screens render immediately on the
+  // system font and pick up the brand fonts on the re-render once this
+  // resolves -- worst case is one flash of the wrong font, not a stuck app.
+  const [, fontError] = useFonts({
     Fredoka_400Regular,
     Fredoka_600SemiBold,
     Fredoka_700Bold,
@@ -26,23 +28,17 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
+    if (fontError) console.error("Font loading failed:", fontError);
+  }, [fontError]);
+
+  useEffect(() => {
     requestMicPermissionOnce();
     Camera.requestCameraPermission();
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
   }, []);
 
-  const onLayoutRootView = useCallback(() => {
-    if (fontsLoaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-
-  if (!fontsLoaded) {
-    return null;
-  }
-
   return (
-    <SafeAreaProvider onLayout={onLayoutRootView}>
+    <SafeAreaProvider>
       <GameProvider>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" />
