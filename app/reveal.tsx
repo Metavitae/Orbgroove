@@ -232,26 +232,31 @@ export default function Reveal() {
             style={{ position: "absolute", left: rect.left, top: rect.top, width: rect.width, height: rect.height }}
             pointerEvents="none"
           >
+            {/* flex:1 + default (stretch) cross-axis at every level, no
+                percentage heights -- percentage-height resolution proved
+                unreliable here (labels were being clipped below the visible
+                frame), whereas plain flex stretch through a chain of
+                determinate-height parents is unambiguous. */}
             <View style={{ flex: 1, flexDirection: "row", padding: 24 }}>
-            <View style={{ flexDirection: "row", flex: 1, alignItems: "flex-end" }}>
-              <View style={{ flex: 1, alignItems: "center", marginRight: 12, height: "100%" }}>
-                <View style={{ width: 44, flex: 1, backgroundColor: colors.card, borderRadius: 8, justifyContent: "flex-end", overflow: "hidden" }}>
-                  <Animated.View style={{ width: 44, height: rhythmHeight, backgroundColor: colors.cyan }} />
+              <View style={{ flexDirection: "row", flex: 1 }}>
+                <View style={{ flex: 1, alignItems: "center", marginRight: 12 }}>
+                  <View style={{ width: 44, flex: 1, backgroundColor: colors.card, borderRadius: 8, justifyContent: "flex-end", overflow: "hidden", marginBottom: 8 }}>
+                    <Animated.View style={{ width: 44, height: rhythmHeight, backgroundColor: colors.cyan }} />
+                  </View>
+                  <Text style={{ color: colors.mint, fontSize: 12, fontFamily: fonts.labelMedium, letterSpacing: 2, textTransform: "uppercase", ...textOnImageShadow }}>Rhythm</Text>
                 </View>
-                <Text style={{ color: colors.mint, fontSize: 12, fontFamily: fonts.labelMedium, letterSpacing: 2, marginTop: 8, textTransform: "uppercase", ...textOnImageShadow }}>Rhythm</Text>
-              </View>
-              <View style={{ flex: 1, alignItems: "center", height: "100%" }}>
-                <View style={{ width: 44, flex: 1, backgroundColor: colors.card, borderRadius: 8, justifyContent: "flex-end", overflow: "hidden" }}>
-                  <Animated.View style={{ width: 44, height: physHeight, backgroundColor: colors.pink }} />
+                <View style={{ flex: 1, alignItems: "center" }}>
+                  <View style={{ width: 44, flex: 1, backgroundColor: colors.card, borderRadius: 8, justifyContent: "flex-end", overflow: "hidden", marginBottom: 8 }}>
+                    <Animated.View style={{ width: 44, height: physHeight, backgroundColor: colors.pink }} />
+                  </View>
+                  <Text style={{ color: colors.mint, fontSize: 12, fontFamily: fonts.labelMedium, letterSpacing: 2, textTransform: "uppercase", ...textOnImageShadow }}>Moves</Text>
                 </View>
-                <Text style={{ color: colors.mint, fontSize: 12, fontFamily: fonts.labelMedium, letterSpacing: 2, marginTop: 8, textTransform: "uppercase", ...textOnImageShadow }}>Moves</Text>
               </View>
-            </View>
-            <View style={{ flex: 1, alignItems: "center", justifyContent: "flex-end", paddingBottom: 28 }}>
-              <Animated.Text style={{ color: colors.pink, fontFamily: fonts.displayBold, textTransform: "uppercase", transform: [{ translateY: textTranslateY }], fontSize: textSize, letterSpacing: textLetterSpacing, ...textOnImageShadow }}>
-                YOUR{"\n"}SCORE
-              </Animated.Text>
-            </View>
+              <View style={{ flex: 1, alignItems: "center", justifyContent: "flex-end", paddingBottom: 28 }}>
+                <Animated.Text style={{ color: colors.pink, fontFamily: fonts.displayBold, textTransform: "uppercase", transform: [{ translateY: textTranslateY }], fontSize: textSize, letterSpacing: textLetterSpacing, ...textOnImageShadow }}>
+                  YOUR{"\n"}SCORE
+                </Animated.Text>
+              </View>
             </View>
           </View>
         );
