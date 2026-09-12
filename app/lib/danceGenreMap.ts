@@ -12,6 +12,7 @@ export const DANCE_GENRE_MAP: Record<string, string> = {
   "Dancehall": "dancehall",
   "Waltz": "waltz",
   "Hip-Hop/Breaking": "hip-hop",
+  "House": "house",
   "K-pop choreography": "kpop",
   "Afrobeats": "afrobeats",
 };

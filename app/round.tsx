@@ -6,6 +6,10 @@ import { useGame } from "./context/GameContext";
 import { GradientButton } from "./components/GradientButton";
 import { colors, fonts, textOnImageShadow } from "./theme";
 
+// USA carries two possible dances, chosen randomly when picked (see
+// resolveDance below) -- House genuinely originated in Chicago, so it's a
+// second historically-grounded dance for this country, not a replacement
+// for Hip-Hop or a reassignment of any other country's traditional dance.
 const countries = [
   { name: "Brazil", flag: "🇧🇷", dance: "Samba" },
   { name: "Spain", flag: "🇪🇸", dance: "Flamenco" },
@@ -16,7 +20,7 @@ const countries = [
   { name: "Cuba", flag: "🇨🇺", dance: "Salsa" },
   { name: "Colombia", flag: "🇨🇴", dance: "Cumbia" },
   { name: "Mexico", flag: "🇲🇽", dance: "Folklórico (Jarabe Tapatío)" },
-  { name: "USA", flag: "🇺🇸", dance: "Hip-Hop/Breaking" },
+  { name: "USA", flag: "🇺🇸", dance: "Hip-Hop/Breaking", altDances: ["House"] },
   { name: "South Korea", flag: "🇰🇷", dance: "K-pop choreography" },
   { name: "France", flag: "🇫🇷", dance: "Cancan" },
   { name: "Greece", flag: "🇬🇷", dance: "Sirtaki" },
@@ -38,6 +42,14 @@ const countries = [
   { name: "Turkey", flag: "🇹🇷", dance: "Halay" },
   { name: "Indonesia", flag: "🇮🇩", dance: "Saman" },
 ];
+
+// Picks one dance for a country with altDances (uniformly among the primary
+// dance + each alt), leaving countries without altDances untouched.
+function resolveDance<T extends { dance: string; altDances?: string[] }>(country: T): T {
+  if (!country.altDances || country.altDances.length === 0) return country;
+  const options = [country.dance, ...country.altDances];
+  return { ...country, dance: options[Math.floor(Math.random() * options.length)] };
+}
 
 export default function Round() {
   const router = useRouter();
@@ -69,7 +81,7 @@ export default function Round() {
           ? countries.filter(c => !usedCountries.includes(c.name))
           : countries
         : countries;
-      const picked = pool[Math.floor(Math.random() * pool.length)];
+      const picked = resolveDance(pool[Math.floor(Math.random() * pool.length)]);
       setCurrentCountry(picked);
       markCountryUsed(picked.name);
       setPhase("reveal");
