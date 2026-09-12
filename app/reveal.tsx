@@ -33,6 +33,10 @@ function randomPhysScore() {
 const BG_IMAGE_SIZE = { width: 1376, height: 768 };
 const LEFT_FRAME = { left: 102 / 1376, right: 713 / 1376, top: 144 / 768, bottom: 537 / 768 };
 const RIGHT_FRAME = { left: 722 / 1376, right: 1271 / 1376, top: 144 / 768, bottom: 537 / 768 };
+// bg_score.jpg's single screen-frame outline (same native 1376x768 size as
+// bg_reveal.jpg) -- used only on the "scores" phase, which shows one result,
+// not a comparison, so it gets its own single-screen background.
+const SCORE_FRAME = { left: 187 / 1376, right: 1184 / 1376, top: 136 / 768, bottom: 622 / 768 };
 
 type FrameFractions = { left: number; right: number; top: number; bottom: number };
 
@@ -158,7 +162,7 @@ export default function Reveal() {
 
   return (
     <ImageBackground
-      source={require("../assets/images/bg_reveal.jpg")}
+      source={phase === "scores" ? require("../assets/images/bg_score.jpg") : require("../assets/images/bg_reveal.jpg")}
       resizeMode="cover"
       style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 24, paddingBottom: 24 + Math.max(insets.bottom, 24) }}
       onLayout={(e: LayoutChangeEvent) => setBgContainerSize({ width: e.nativeEvent.layout.width, height: e.nativeEvent.layout.height })}
@@ -221,14 +225,13 @@ export default function Reveal() {
         </View>
       )}
 
-      {phase === "scores" && (
-        // flex:1 (not a fixed/centered height) so this always fills exactly the
-        // space available under the safe-area padding above -- the chart area
-        // below is flex-based too, so on a short landscape screen it shrinks
-        // instead of pushing the NEXT button past the bottom edge.
-        <View style={{ flex: 1, width: "100%", alignItems: "center", justifyContent: "space-between" }}>
-          <Text style={{ color: colors.mint, fontSize: 20, fontFamily: fonts.displayBold, marginBottom: 12, textAlign: "center", ...textOnImageShadow }}>{currentPlayer ? currentPlayer.name : ""}</Text>
-          <View style={{ flexDirection: "row", width: "100%", flex: 1, minHeight: 0 }}>
+      {phase === "scores" && bgContainerSize && (() => {
+        const rect = frameRectInContainer(bgContainerSize, SCORE_FRAME);
+        return (
+          <View
+            style={{ position: "absolute", left: rect.left, top: rect.top, width: rect.width, height: rect.height, flexDirection: "row", alignItems: "flex-end", padding: 24 }}
+            pointerEvents="none"
+          >
             <View style={{ flexDirection: "row", flex: 1, alignItems: "flex-end" }}>
               <View style={{ flex: 1, alignItems: "center", marginRight: 12, height: "100%" }}>
                 <View style={{ width: 44, flex: 1, backgroundColor: colors.card, borderRadius: 8, justifyContent: "flex-end", overflow: "hidden" }}>
@@ -249,6 +252,19 @@ export default function Reveal() {
               </Animated.Text>
             </View>
           </View>
+        );
+      })()}
+
+      {phase === "scores" && (
+        // flex:1 (not a fixed/centered height) so this always fills exactly the
+        // space available under the safe-area padding above. The bars/YOUR
+        // SCORE content itself is rendered as an absolutely-positioned sibling
+        // above, sized to sit precisely inside bg_score.jpg's single frame
+        // outline -- this flow just reserves the heading above and button
+        // below it, same spacer pattern as the splitscreen phase.
+        <View style={{ flex: 1, width: "100%", alignItems: "center", justifyContent: "space-between" }}>
+          <Text style={{ color: colors.mint, fontSize: 20, fontFamily: fonts.displayBold, marginBottom: 12, textAlign: "center", ...textOnImageShadow }}>{currentPlayer ? currentPlayer.name : ""}</Text>
+          <View style={{ flex: 1, minHeight: 0, width: "100%" }} />
           <GradientButton label="NEXT" onPress={handleNext} style={{ width: "100%", marginTop: 16 }} />
         </View>
       )}
