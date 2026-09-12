@@ -162,7 +162,7 @@ export default function Players() {
       style={{ flex: 1, padding: 20, paddingBottom: 20 + Math.max(insets.bottom, 24), justifyContent: "center" }}
       onLayout={(e: LayoutChangeEvent) => setScreenHeight(e.nativeEvent.layout.height)}
     >
-      <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(6,20,15,0.4)" }} pointerEvents="none" />
+      <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: colors.scrim }} pointerEvents="none" />
       {step === "announce" && (
         <View style={{ width: "100%", alignItems: "center" }}>
           <Text style={{ fontSize: 40, marginBottom: 20 }}>👀</Text>

@@ -8,6 +8,10 @@ export const colors = {
   cyan: "#00C2FF",
   darkText: "#06241B",
   gradient: ["#00C2FF", "#38E56B", "#D8FF33"] as const,
+  // Full-screen dark scrim over photographic backgrounds, used identically
+  // by gamemode/leaderboard/players/round/reveal so overlaid text stays
+  // legible against varied art -- one token so it can't drift per-screen.
+  scrim: "rgba(6,20,15,0.4)",
 };
 
 // Brand type system: Fredoka for display/headline text, JetBrains Mono for

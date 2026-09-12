@@ -29,6 +29,7 @@ export function OutlineButton({
       ]}
     >
       <Text
+        numberOfLines={1}
         style={
           plain
             ? { color: colors.mint, fontSize: 14, fontFamily: fonts.displaySemiBold }

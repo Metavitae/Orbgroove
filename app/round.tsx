@@ -96,7 +96,7 @@ export default function Round() {
       resizeMode="cover"
       style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 24, paddingBottom: 24 + Math.max(insets.bottom, 24) }}
     >
-      <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(6,20,15,0.4)" }} pointerEvents="none" />
+      <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: colors.scrim }} pointerEvents="none" />
       {phase === "spinning" && (
         <View style={{ alignItems: "center" }}>
           <Text style={{ color: colors.pink, fontSize: 11, fontFamily: fonts.labelMedium, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8, ...textOnImageShadow }}>

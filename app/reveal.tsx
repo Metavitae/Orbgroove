@@ -8,9 +8,8 @@ import { OutlineButton } from "./components/OutlineButton";
 import { colors, fonts, textOnImageShadow } from "./theme";
 import { genreForDance } from "./lib/danceGenreMap";
 import { computeMovesScore, computeRhythmScore, computeBeatAlignmentScore, type Pose } from "./lib/danceScoring";
+import { RECORDING_WINDOW_SEC } from "./lib/constants";
 import poseReferenceData from "../assets/data/pose-reference.json";
-
-const RECORDING_WINDOW_SEC = 30;
 
 const REFERENCE_POSES = poseReferenceData as Record<string, { label: string; landmarks: Pose }[]>;
 
@@ -167,7 +166,7 @@ export default function Reveal() {
       style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 24, paddingBottom: 24 + Math.max(insets.bottom, 24) }}
       onLayout={(e: LayoutChangeEvent) => setBgContainerSize({ width: e.nativeEvent.layout.width, height: e.nativeEvent.layout.height })}
     >
-      <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(6,20,15,0.4)" }} pointerEvents="none" />
+      <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: colors.scrim }} pointerEvents="none" />
 
       {phase === "splitscreen" && bgContainerSize && (
         <>

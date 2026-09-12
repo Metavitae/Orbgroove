@@ -22,6 +22,7 @@ import { useGame } from "./context/GameContext";
 import { micPermission } from "./context/micPermission";
 import { genreForDance } from "./lib/danceGenreMap";
 import { pickTrackForGenre } from "./lib/danceMusic";
+import { RECORDING_WINDOW_SEC } from "./lib/constants";
 
 const BASELINE_WINDOW_MS = 1000;
 
@@ -35,7 +36,7 @@ export default function Recording() {
   const { currentPlayer, currentCountry, currentPlayerIndex, mode, addCheerScore, setCapturedFrames, setDanceTrack } = useGame();
   const [phase, setPhase] = useState("countdown");
   const [count, setCount] = useState(3);
-  const [timeLeft, setTimeLeft] = useState(30);
+  const [timeLeft, setTimeLeft] = useState(RECORDING_WINDOW_SEC);
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   // Picked once per round mount, not re-randomized on re-render. Only 3
@@ -87,11 +88,14 @@ export default function Recording() {
     const r = result as unknown as {
       landmarks?: Landmark[][];
       results?: { landmarks: Landmark[][] }[];
-      inferenceTime?: number;
     };
     const pose = (r.landmarks ?? r.results?.[0]?.landmarks ?? [])[0];
     if (!pose) return;
-    capturedFramesRef.current.push({ landmarks: pose, timestampMs: r.inferenceTime ?? Date.now() });
+    // Wall-clock time, not r.inferenceTime — that field is the pose
+    // model's inference *duration* (tens of ms), not a timestamp, and
+    // danceScoring.ts's beat-alignment math needs real elapsed time
+    // against trackStartTimestampMs (a Date.now() epoch value).
+    capturedFramesRef.current.push({ landmarks: pose, timestampMs: Date.now() });
   }, []);
 
   const onPoseError = useCallback((error: { code: number; message: string }) => {
@@ -227,7 +231,14 @@ export default function Recording() {
         setTimeLeft(prev => {
           if (prev <= 1) {
             clearInterval(interval);
-            if (track) musicPlayer.pause();
+            if (track) {
+              musicPlayer.pause();
+              // Music-round clapometer starts only now, once the speaker
+              // has gone quiet — starting it 2s early (like the silent-round
+              // path below) would have the mic sampling music instead of
+              // crowd noise for the baseline/peak windows.
+              startClapometer();
+            }
             setCapturedFrames(
               capturedFramesRef.current.map(f => ({ pose: f.landmarks, timestampMs: f.timestampMs }))
             );
@@ -240,7 +251,7 @@ export default function Recording() {
             return 0;
           }
           const next = prev - 1;
-          if (next === 2) startClapometer();
+          if (next === 2 && !track) startClapometer();
           return next;
         });
       }, 1000);

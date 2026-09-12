@@ -18,7 +18,7 @@ export default function Leaderboard() {
       resizeMode="cover"
       style={{ flex: 1, justifyContent: "center", padding: 14, paddingBottom: 14 + Math.max(insets.bottom, 24) }}
     >
-      <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(6,20,15,0.4)" }} pointerEvents="none" />
+      <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: colors.scrim }} pointerEvents="none" />
       <Text style={{ color: colors.pink, fontSize: 10, fontFamily: fonts.labelMedium, letterSpacing: 3, textTransform: "uppercase", marginBottom: 4, textAlign: "center", ...textOnImageShadow }}>After Round {currentRoundIndex}</Text>
       <Text style={{ color: colors.mint, fontSize: 20, fontFamily: fonts.displaySemiBold, fontStyle: "italic", marginBottom: 8, textAlign: "center", ...textOnImageShadow }}>Leaderboard</Text>
       {sorted.map((p, i) => (
