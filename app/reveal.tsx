@@ -227,9 +227,21 @@ export default function Reveal() {
 
       {phase === "scores" && bgContainerSize && (() => {
         const rect = frameRectInContainer(bgContainerSize, SCORE_FRAME);
+        // On this device's wide aspect ratio, resizeMode="cover" crops so
+        // little off the sides that the frame's own bottom edge lands at
+        // ~92% of screen height -- almost no room left below it for the
+        // NEXT button, which sits in the normal flex flow beneath this
+        // absolutely-positioned box. Rather than let content fill the
+        // frame's full measured height (pushing the Rhythm/Moves labels
+        // down behind the opaque button), cap this box's height so it
+        // always leaves room for the button + its margin + the safe-area
+        // inset, regardless of device aspect ratio.
+        const NEXT_BUTTON_RESERVED = 90;
+        const availableHeight = bgContainerSize.height - rect.top - insets.bottom - NEXT_BUTTON_RESERVED;
+        const boxHeight = Math.min(rect.height, Math.max(availableHeight, 0));
         return (
           <View
-            style={{ position: "absolute", left: rect.left, top: rect.top, width: rect.width, height: rect.height }}
+            style={{ position: "absolute", left: rect.left, top: rect.top, width: rect.width, height: boxHeight }}
             pointerEvents="none"
           >
             {/* flex:1 + default (stretch) cross-axis at every level, no
