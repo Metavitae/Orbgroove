@@ -229,9 +229,10 @@ export default function Reveal() {
         const rect = frameRectInContainer(bgContainerSize, SCORE_FRAME);
         return (
           <View
-            style={{ position: "absolute", left: rect.left, top: rect.top, width: rect.width, height: rect.height, flexDirection: "row", alignItems: "flex-end", padding: 24 }}
+            style={{ position: "absolute", left: rect.left, top: rect.top, width: rect.width, height: rect.height }}
             pointerEvents="none"
           >
+            <View style={{ flex: 1, flexDirection: "row", padding: 24 }}>
             <View style={{ flexDirection: "row", flex: 1, alignItems: "flex-end" }}>
               <View style={{ flex: 1, alignItems: "center", marginRight: 12, height: "100%" }}>
                 <View style={{ width: 44, flex: 1, backgroundColor: colors.card, borderRadius: 8, justifyContent: "flex-end", overflow: "hidden" }}>
@@ -250,6 +251,7 @@ export default function Reveal() {
               <Animated.Text style={{ color: colors.pink, fontFamily: fonts.displayBold, textTransform: "uppercase", transform: [{ translateY: textTranslateY }], fontSize: textSize, letterSpacing: textLetterSpacing, ...textOnImageShadow }}>
                 YOUR{"\n"}SCORE
               </Animated.Text>
+            </View>
             </View>
           </View>
         );
