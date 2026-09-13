@@ -15,6 +15,9 @@ export const DANCE_GENRE_MAP: Record<string, string> = {
   "House": "house",
   "K-pop choreography": "kpop",
   "Afrobeats": "afrobeats",
+  "Riverdance": "riverdance",
+  "Halay": "halay",
+  "Bharatanatyam": "bharatanatyam",
 };
 
 export function genreForDance(dance: string): string | null {

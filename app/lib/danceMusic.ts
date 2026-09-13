@@ -50,6 +50,14 @@ const TRACK_SOURCES: Record<string, number> = {
   "dance-kpop-128609.mp3": require("../../assets/audio/kpop/dance-kpop-128609.mp3"),
   "electro-k-pop-girl-3-469756.mp3": require("../../assets/audio/kpop/electro-k-pop-girl-3-469756.mp3"),
   "electronic-kpop-x-blackpink-trap-beat-x-pop-my-mercedes-494708.mp3": require("../../assets/audio/kpop/electronic-kpop-x-blackpink-trap-beat-x-pop-my-mercedes-494708.mp3"),
+  "celtic-traditional-celtic-music-01-481020.mp3": require("../../assets/audio/riverdance/celtic-traditional-celtic-music-01-481020.mp3"),
+  "celtic-celtic-591333.mp3": require("../../assets/audio/riverdance/celtic-celtic-591333.mp3"),
+  "adventure-pirate-celtic-528827.mp3": require("../../assets/audio/riverdance/adventure-pirate-celtic-528827.mp3"),
+  "celtic-celtic-melody-b7-506185.mp3": require("../../assets/audio/riverdance/celtic-celtic-melody-b7-506185.mp3"),
+  "folk-classical-turkish-music-203983.mp3": require("../../assets/audio/halay/folk-classical-turkish-music-203983.mp3"),
+  "upbeat-turkish-turkey-istanbul-music-400476.mp3": require("../../assets/audio/halay/upbeat-turkish-turkey-istanbul-music-400476.mp3"),
+  "folk-ember-yildiz-turkish-folk-412841.mp3": require("../../assets/audio/halay/folk-ember-yildiz-turkish-folk-412841.mp3"),
+  "india-indian-440089.mp3": require("../../assets/audio/bharatanatyam/india-indian-440089.mp3"),
 };
 
 export type DanceTrack = { source: number; grid: BeatGrid };
