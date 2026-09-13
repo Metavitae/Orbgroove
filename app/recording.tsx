@@ -19,7 +19,7 @@ import {
   type Landmark,
 } from "react-native-mediapipe-posedetection";
 import { useGame } from "./context/GameContext";
-import { micPermission } from "./context/micPermission";
+import { permissionsState } from "./context/permissions";
 import { genreForDance } from "./lib/danceGenreMap";
 import { pickTrackForGenre } from "./lib/danceMusic";
 import { RECORDING_WINDOW_SEC } from "./lib/constants";
@@ -158,7 +158,7 @@ export default function Recording() {
   }, [recorderState.metering]);
 
   const startClapometer = async () => {
-    if (mode !== "crowd" || !micPermission.granted) return;
+    if (mode !== "crowd" || !permissionsState.microphone) return;
     try {
       await recorder.prepareToRecordAsync();
       recorder.record();

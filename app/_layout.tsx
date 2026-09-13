@@ -1,7 +1,6 @@
 import { Stack } from "expo-router";
 import { useEffect } from "react";
 import * as ScreenOrientation from "expo-screen-orientation";
-import { Camera } from "react-native-vision-camera";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useFonts, Fredoka_400Regular, Fredoka_600SemiBold, Fredoka_700Bold } from "@expo-google-fonts/fredoka";
 import {
@@ -10,7 +9,6 @@ import {
   JetBrainsMono_700Bold,
 } from "@expo-google-fonts/jetbrains-mono";
 import { GameProvider } from "./context/GameContext";
-import { requestMicPermissionOnce } from "./context/micPermission";
 
 export default function RootLayout() {
   // Deliberately not gating the whole app behind this (no "return null until
@@ -32,8 +30,6 @@ export default function RootLayout() {
   }, [fontError]);
 
   useEffect(() => {
-    requestMicPermissionOnce();
-    Camera.requestCameraPermission();
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
   }, []);
 

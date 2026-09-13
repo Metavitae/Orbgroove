@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGame, MAX_PLAYERS } from "./context/GameContext";
 import type { PlayerType } from "./context/GameContext";
+import { requestAllPermissionsOnce } from "./context/permissions";
 import { GradientButton } from "./components/GradientButton";
 import { OutlineButton } from "./components/OutlineButton";
 import { colors, fonts, textOnImageShadow } from "./theme";
@@ -207,7 +208,15 @@ export default function Players() {
             </>
           )}
           {players.length > 0 && (
-            <TouchableOpacity onPress={() => router.push("/round")} style={{ marginTop: 16, alignItems: "center", padding: 10 }}>
+            <TouchableOpacity
+              onPress={async () => {
+                // One combined camera+mic prompt, right after registration --
+                // never at raw app launch. See app/context/permissions.ts.
+                await requestAllPermissionsOnce();
+                router.push("/round");
+              }}
+              style={{ marginTop: 16, alignItems: "center", padding: 10 }}
+            >
               <Text style={{ color: colors.mintDim, fontSize: 12, fontFamily: fonts.labelMedium, letterSpacing: 3, textTransform: "uppercase", ...textOnImageShadow }}>Start Game →</Text>
             </TouchableOpacity>
           )}
