@@ -105,6 +105,7 @@ const TRACK_SOURCES: Record<string, number> = {
   "latin-peru-485341.mp3": require("../../assets/audio/marinera/latin-peru-485341.mp3"),
   "metal-saint-leo-aggressive-polka-rock-instrumental-391310.mp3": require("../../assets/audio/polka/metal-saint-leo-aggressive-polka-rock-instrumental-391310.mp3"),
   "folk-cort-ranchera-dm-244661.mp3": require("../../assets/audio/folklorico/folk-cort-ranchera-dm-244661.mp3"),
+  "upbeat-cancan-15542.mp3": require("../../assets/audio/cancan/upbeat-cancan-15542.mp3"),
 };
 
 export type DanceTrack = { source: number; grid: BeatGrid };

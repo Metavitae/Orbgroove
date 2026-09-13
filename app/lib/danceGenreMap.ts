@@ -33,6 +33,7 @@ export const DANCE_GENRE_MAP: Record<string, string> = {
   "Thai classical dance": "thai-classical-dance",
   "Bon Odori": "bon-odori",
   "Folklórico (Jarabe Tapatío)": "folklorico",
+  "Cancan": "cancan",
 };
 
 export function genreForDance(dance: string): string | null {
