@@ -18,6 +18,21 @@ export const DANCE_GENRE_MAP: Record<string, string> = {
   "Riverdance": "riverdance",
   "Halay": "halay",
   "Bharatanatyam": "bharatanatyam",
+  "Cossack dance": "cossack-dance",
+  "Belly dance": "belly-dance",
+  "Chinese fan dance": "chinese-fan-dance",
+  "Cumbia": "cumbia",
+  "Gumboot dance": "gumboot-dance",
+  "Hora": "hora",
+  "Marinera": "marinera",
+  "Polka": "polka",
+  "Schuhplattler": "schuhplattler",
+  "Sirtaki": "sirtaki",
+  "Tinikling": "tinikling",
+  "Saman": "saman",
+  "Thai classical dance": "thai-classical-dance",
+  "Bon Odori": "bon-odori",
+  "Folklórico (Jarabe Tapatío)": "folklorico",
 };
 
 export function genreForDance(dance: string): string | null {
