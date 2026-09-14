@@ -6,55 +6,26 @@ import { useGame } from "./context/GameContext";
 import { GradientButton } from "./components/GradientButton";
 import { colors, fonts, textOnImageShadow } from "./theme";
 
-// USA carries two possible dances, chosen randomly when picked (see
-// resolveDance below) -- House genuinely originated in Chicago, so it's a
-// second historically-grounded dance for this country, not a replacement
-// for Hip-Hop or a reassignment of any other country's traditional dance.
-const countries = [
-  { name: "Brazil", flag: "🇧🇷", dance: "Samba" },
-  { name: "Spain", flag: "🇪🇸", dance: "Flamenco" },
-  { name: "Argentina", flag: "🇦🇷", dance: "Tango" },
-  { name: "India", flag: "🇮🇳", dance: "Bharatanatyam" },
-  { name: "Ireland", flag: "🇮🇪", dance: "Riverdance" },
-  { name: "Japan", flag: "🇯🇵", dance: "Bon Odori" },
-  { name: "Cuba", flag: "🇨🇺", dance: "Salsa" },
-  { name: "Colombia", flag: "🇨🇴", dance: "Cumbia" },
-  { name: "Mexico", flag: "🇲🇽", dance: "Folklórico (Jarabe Tapatío)" },
-  { name: "USA", flag: "🇺🇸", dance: "Hip-Hop/Breaking", altDances: ["House"] },
-  { name: "South Korea", flag: "🇰🇷", dance: "K-pop choreography" },
-  { name: "France", flag: "🇫🇷", dance: "Cancan" },
-  { name: "Greece", flag: "🇬🇷", dance: "Sirtaki" },
-  { name: "Egypt", flag: "🇪🇬", dance: "Belly dance" },
-  { name: "Nigeria", flag: "🇳🇬", dance: "Afrobeats" },
-  { name: "South Africa", flag: "🇿🇦", dance: "Gumboot dance" },
-  { name: "China", flag: "🇨🇳", dance: "Chinese fan dance" },
-  { name: "Philippines", flag: "🇵🇭", dance: "Tinikling" },
-  { name: "Hawaii", flag: "🌺", dance: "Hula" },
-  { name: "Austria", flag: "🇦🇹", dance: "Waltz" },
-  { name: "Russia", flag: "🇷🇺", dance: "Cossack dance" },
-  { name: "Jamaica", flag: "🇯🇲", dance: "Dancehall" },
-  { name: "Poland", flag: "🇵🇱", dance: "Polka" },
-  { name: "Israel", flag: "🇮🇱", dance: "Hora" },
-  { name: "Peru", flag: "🇵🇪", dance: "Marinera" },
-  { name: "Dominican Republic", flag: "🇩🇴", dance: "Merengue" },
-  { name: "Bavaria", flag: "🇩🇪", dance: "Schuhplattler" },
-  { name: "Thailand", flag: "🇹🇭", dance: "Thai classical dance" },
-  { name: "Turkey", flag: "🇹🇷", dance: "Halay" },
-  { name: "Indonesia", flag: "🇮🇩", dance: "Saman" },
+const genres = [
+  { name: "House" },
+  { name: "Hip-Hop" },
+  { name: "Afrobeats" },
+  { name: "K-pop" },
+  { name: "Samba" },
+  { name: "Flamenco" },
+  { name: "Tango" },
+  { name: "Salsa" },
+  { name: "Merengue" },
+  { name: "Hula" },
+  { name: "Dancehall" },
+  { name: "Waltz" },
+  { name: "Cumbia" },
 ];
-
-// Picks one dance for a country with altDances (uniformly among the primary
-// dance + each alt), leaving countries without altDances untouched.
-function resolveDance<T extends { dance: string; altDances?: string[] }>(country: T): T {
-  if (!country.altDances || country.altDances.length === 0) return country;
-  const options = [country.dance, ...country.altDances];
-  return { ...country, dance: options[Math.floor(Math.random() * options.length)] };
-}
 
 export default function Round() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { currentPlayer, currentRoundIndex, roundCount, currentCountry, setCurrentCountry, usedCountries, markCountryUsed } = useGame();
+  const { currentPlayer, currentRoundIndex, roundCount, currentGenre, setCurrentGenre, usedGenres, markGenreUsed } = useGame();
   const [phase, setPhase] = useState("spinning");
   const spinAnim = useRef(new Animated.Value(0)).current;
 
@@ -72,18 +43,18 @@ export default function Round() {
     setTimeout(() => {
       anim.stop();
       const isFinalRound = currentRoundIndex + 1 >= roundCount;
-      // Final round draws only from countries not yet danced this match, so
+      // Final round draws only from genres not yet danced this match, so
       // the last round never repeats an earlier reveal. Falls back to the
       // full pool if every entry has already been used (only possible with
-      // more player turns than the 30-country pool has room for).
+      // more player turns than the genre pool has room for).
       const pool = isFinalRound
-        ? countries.filter(c => !usedCountries.includes(c.name)).length > 0
-          ? countries.filter(c => !usedCountries.includes(c.name))
-          : countries
-        : countries;
-      const picked = resolveDance(pool[Math.floor(Math.random() * pool.length)]);
-      setCurrentCountry(picked);
-      markCountryUsed(picked.name);
+        ? genres.filter(g => !usedGenres.includes(g.name)).length > 0
+          ? genres.filter(g => !usedGenres.includes(g.name))
+          : genres
+        : genres;
+      const picked = pool[Math.floor(Math.random() * pool.length)];
+      setCurrentGenre(picked);
+      markGenreUsed(picked.name);
       setPhase("reveal");
     }, 3000);
   }, []);
@@ -106,10 +77,9 @@ export default function Round() {
           <Animated.Text style={{ fontSize: 100, transform: [{ rotate: spin }] }}>🌍</Animated.Text>
         </View>
       )}
-      {phase === "reveal" && currentCountry && (
+      {phase === "reveal" && currentGenre && (
         <View style={{ alignItems: "center" }}>
-          <Text style={{ fontSize: 80, marginBottom: 24 }}>{currentCountry.flag}</Text>
-          <Text style={{ color: colors.mint, fontSize: 42, fontFamily: fonts.displayBold, marginBottom: 12, ...textOnImageShadow }}>{currentCountry.name}</Text>
+          <Text style={{ color: colors.mint, fontSize: 42, fontFamily: fonts.displayBold, marginBottom: 12, ...textOnImageShadow }}>{currentGenre.name}</Text>
           <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", marginBottom: 60, ...textOnImageShadow }}>
             {currentPlayer ? `${currentPlayer.name}, get dancing!` : "Get dancing!"}
           </Text>

@@ -67,7 +67,7 @@ export default function Reveal() {
     currentPlayerIndex,
     currentRoundIndex,
     roundCount,
-    currentCountry,
+    currentGenre,
     capturedFrames,
     danceTrack,
     addScore,
@@ -84,11 +84,9 @@ export default function Reveal() {
   const physAnim = useRef(new Animated.Value(0)).current;
   const textAnim = useRef(new Animated.Value(0)).current;
 
-  // Real scoring when the round's dance has reference pose data (see
+  // Real scoring when the round's genre has reference pose data (see
   // app/lib/danceGenreMap.ts) and the recording actually captured usable
-  // frames; falls back to the original random placeholder otherwise, so an
-  // uncovered dance (most of the 32-country list, still) plays exactly like
-  // it did before this was wired up rather than scoring everyone a flat 0.
+  // frames; falls back to the original random placeholder otherwise.
   //
   // Rhythm specifically has three tiers, in order of preference: real
   // beat-alignment against the track that actually played (danceTrack is
@@ -104,7 +102,7 @@ export default function Reveal() {
     return rhythmNorm !== null ? Math.round(rhythmNorm * 40) + 20 : randomRhythmScore();
   });
   const [physScore] = useState(() => {
-    const genre = currentCountry ? genreForDance(currentCountry.dance) : null;
+    const genre = currentGenre ? genreForDance(currentGenre.name) : null;
     const referencePoses = genre ? REFERENCE_POSES[genre]?.map(p => p.landmarks) ?? [] : [];
     const movesNorm =
       referencePoses.length > 0

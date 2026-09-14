@@ -24,10 +24,8 @@ export type Player = {
   cheerScore: number;
 };
 
-export type Country = {
+export type Genre = {
   name: string;
-  flag: string;
-  dance: string;
 };
 
 type GameState = {
@@ -36,8 +34,8 @@ type GameState = {
   roundCount: number;
   currentRoundIndex: number;
   currentPlayerIndex: number;
-  currentCountry: Country | null;
-  usedCountries: string[];
+  currentGenre: Genre | null;
+  usedGenres: string[];
   // Set once, right when a recording ends (not per-frame -- see recording.tsx)
   // and read once by reveal.tsx for the immediately following screen. Not
   // meant to persist across rounds.
@@ -55,8 +53,8 @@ type GameContextValue = GameState & {
   setCurrentPlayerIndex: (index: number) => void;
   nextPlayerTurn: () => void;
   currentPlayer: Player | null;
-  setCurrentCountry: (country: Country | null) => void;
-  markCountryUsed: (name: string) => void;
+  setCurrentGenre: (genre: Genre | null) => void;
+  markGenreUsed: (name: string) => void;
   setCapturedFrames: (frames: CapturedFrame[]) => void;
   setDanceTrack: (track: DanceTrackInfo | null) => void;
   addScore: (playerIndex: number, points: number) => void;
@@ -72,8 +70,8 @@ const initialState: GameState = {
   roundCount: 0,
   currentRoundIndex: 0,
   currentPlayerIndex: 0,
-  currentCountry: null,
-  usedCountries: [],
+  currentGenre: null,
+  usedGenres: [],
   capturedFrames: [],
   danceTrack: null,
 };
@@ -84,8 +82,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [roundCount, setRoundCount] = useState<number>(initialState.roundCount);
   const [currentRoundIndex, setCurrentRoundIndex] = useState<number>(initialState.currentRoundIndex);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState<number>(initialState.currentPlayerIndex);
-  const [currentCountry, setCurrentCountry] = useState<Country | null>(initialState.currentCountry);
-  const [usedCountries, setUsedCountries] = useState<string[]>(initialState.usedCountries);
+  const [currentGenre, setCurrentGenre] = useState<Genre | null>(initialState.currentGenre);
+  const [usedGenres, setUsedGenres] = useState<string[]>(initialState.usedGenres);
   const [capturedFrames, setCapturedFrames] = useState<CapturedFrame[]>(initialState.capturedFrames);
   const [danceTrack, setDanceTrack] = useState<DanceTrackInfo | null>(initialState.danceTrack);
 
@@ -113,8 +111,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  const markCountryUsed = (name: string) => {
-    setUsedCountries(prev => (prev.includes(name) ? prev : [...prev, name]));
+  const markGenreUsed = (name: string) => {
+    setUsedGenres(prev => (prev.includes(name) ? prev : [...prev, name]));
   };
 
   const resetGame = () => {
@@ -123,8 +121,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setRoundCount(initialState.roundCount);
     setCurrentRoundIndex(initialState.currentRoundIndex);
     setCurrentPlayerIndex(initialState.currentPlayerIndex);
-    setCurrentCountry(initialState.currentCountry);
-    setUsedCountries(initialState.usedCountries);
+    setCurrentGenre(initialState.currentGenre);
+    setUsedGenres(initialState.usedGenres);
     setCapturedFrames(initialState.capturedFrames);
     setDanceTrack(initialState.danceTrack);
   };
@@ -138,8 +136,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
       roundCount,
       currentRoundIndex,
       currentPlayerIndex,
-      currentCountry,
-      usedCountries,
+      currentGenre,
+      usedGenres,
       capturedFrames,
       danceTrack,
       currentPlayer,
@@ -151,15 +149,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
       nextRound,
       setCurrentPlayerIndex,
       nextPlayerTurn,
-      setCurrentCountry,
-      markCountryUsed,
+      setCurrentGenre,
+      markGenreUsed,
       setCapturedFrames,
       setDanceTrack,
       addScore,
       addCheerScore,
       resetGame,
     }),
-    [players, mode, roundCount, currentRoundIndex, currentPlayerIndex, currentCountry, usedCountries, capturedFrames, danceTrack, currentPlayer]
+    [players, mode, roundCount, currentRoundIndex, currentPlayerIndex, currentGenre, usedGenres, capturedFrames, danceTrack, currentPlayer]
   );
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

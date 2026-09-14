@@ -1,7 +1,5 @@
-// Maps a Country's `dance` string (app/round.tsx) to a pose-reference genre
-// key in assets/data/pose-reference.json. Countries not listed here have no
-// reference pose data yet -- see tools/pose-extraction/poses/ for what's
-// covered and the Drive Log for what a future sourcing wave could add.
+// Maps a round's genre name (app/round.tsx) to a pose-reference genre key in
+// assets/data/pose-reference.json.
 export const DANCE_GENRE_MAP: Record<string, string> = {
   "Samba": "samba",
   "Flamenco": "flamenco",
@@ -11,9 +9,9 @@ export const DANCE_GENRE_MAP: Record<string, string> = {
   "Hula": "hula",
   "Dancehall": "dancehall",
   "Waltz": "waltz",
-  "Hip-Hop/Breaking": "hip-hop",
+  "Hip-Hop": "hip-hop",
   "House": "house",
-  "K-pop choreography": "kpop",
+  "K-pop": "kpop",
   "Afrobeats": "afrobeats",
   "Cumbia": "cumbia",
 };

@@ -33,7 +33,7 @@ function sleep(ms: number) {
 export default function Recording() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { currentPlayer, currentCountry, currentPlayerIndex, mode, addCheerScore, setCapturedFrames, setDanceTrack } = useGame();
+  const { currentPlayer, currentGenre, currentPlayerIndex, mode, addCheerScore, setCapturedFrames, setDanceTrack } = useGame();
   const [phase, setPhase] = useState("countdown");
   const [count, setCount] = useState(3);
   const [timeLeft, setTimeLeft] = useState(RECORDING_WINDOW_SEC);
@@ -45,7 +45,7 @@ export default function Recording() {
   // this was built, and reveal.tsx's rhythm scoring falls back to its
   // energy/oscillation proxy accordingly.
   const [track] = useState(() => {
-    const genre = currentCountry ? genreForDance(currentCountry.dance) : null;
+    const genre = currentGenre ? genreForDance(currentGenre.name) : null;
     return genre ? pickTrackForGenre(genre) : null;
   });
   const musicPlayer = useAudioPlayer(track?.source);
@@ -313,7 +313,7 @@ export default function Recording() {
           </Animated.View>
           <Text style={{ color: colors.mint, fontSize: 100, fontFamily: fonts.displayBold, ...textOnImageShadow }}>{timeLeft}</Text>
           <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", marginTop: 16, ...textOnImageShadow }}>
-            {currentCountry ? `${currentCountry.dance}!` : "Dance!"}
+            {currentGenre ? `${currentGenre.name}!` : "Dance!"}
           </Text>
         </View>
       )}
