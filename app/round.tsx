@@ -20,6 +20,8 @@ const genres = [
   { name: "Dancehall" },
   { name: "Waltz" },
   { name: "Cumbia" },
+  { name: "Amapiano" },
+  { name: "Jersey Club" },
 ];
 
 export default function Round() {

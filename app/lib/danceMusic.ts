@@ -53,6 +53,10 @@ const TRACK_SOURCES: Record<string, number> = {
   "afrobeat-cumbiaton-rompiendo-bocina-espinal-records-remix-139379.mp3": require("../../assets/audio/cumbia/afrobeat-cumbiaton-rompiendo-bocina-espinal-records-remix-139379.mp3"),
   "electronic-midnight-in-the-concrete-571664.mp3": require("../../assets/audio/cumbia/electronic-midnight-in-the-concrete-571664.mp3"),
   "folk-cumbia-tropical-the-sound-breeze-that-will-make-you-dance-371810.mp3": require("../../assets/audio/cumbia/folk-cumbia-tropical-the-sound-breeze-that-will-make-you-dance-371810.mp3"),
+  "afrobeat-amapiano-afrobeat-275513.mp3": require("../../assets/audio/amapiano/afrobeat-amapiano-afrobeat-275513.mp3"),
+  "afrobeat-amapiano-beats-log-drum-groove-573944.mp3": require("../../assets/audio/amapiano/afrobeat-amapiano-beats-log-drum-groove-573944.mp3"),
+  "beats-marbles-591654.mp3": require("../../assets/audio/jersey-club/beats-marbles-591654.mp3"),
+  "religious-theme-the-door-opens-inward-x-jersey-club-gospel-special-mix-596742.mp3": require("../../assets/audio/jersey-club/religious-theme-the-door-opens-inward-x-jersey-club-gospel-special-mix-596742.mp3"),
 };
 
 export type DanceTrack = { source: number; grid: BeatGrid };
