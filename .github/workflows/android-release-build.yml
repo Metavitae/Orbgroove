@@ -46,8 +46,11 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      # The runner image already ships an Android SDK with sdkmanager on PATH.
+      # android-actions/setup-android@v3 started failing against it ("Failed to
+      # find package 'tools'", exit 1), so just accept licenses and use it.
+      - name: Accept Android SDK licenses
+        run: yes | sdkmanager --licenses > /dev/null || true
 
       - name: Install NDK + build-tools (matching EAS's managed image)
         run: |
