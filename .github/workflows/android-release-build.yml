@@ -46,11 +46,16 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
-      # The runner image already ships an Android SDK with sdkmanager on PATH.
-      # android-actions/setup-android@v3 started failing against it ("Failed to
-      # find package 'tools'", exit 1), so just accept licenses and use it.
+      # The runner image already ships an Android SDK, but its sdkmanager is not
+      # on PATH. android-actions/setup-android@v3 started failing against it
+      # ("Failed to find package 'tools'", exit 1), so locate the newest
+      # preinstalled cmdline-tools, put it on PATH, and accept licenses.
       - name: Accept Android SDK licenses
-        run: yes | sdkmanager --licenses > /dev/null || true
+        run: |
+          SDKM_DIR=$(ls -d "$ANDROID_HOME"/cmdline-tools/*/bin | sort -V | tail -1)
+          echo "Using sdkmanager in $SDKM_DIR"
+          echo "$SDKM_DIR" >> "$GITHUB_PATH"
+          yes | "$SDKM_DIR/sdkmanager" --licenses > /dev/null
 
       - name: Install NDK + build-tools (matching EAS's managed image)
         run: |
