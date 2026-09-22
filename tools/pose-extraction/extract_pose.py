@@ -23,19 +23,28 @@ exclusive environments:
 LEGAL GUARDRAIL (non-negotiable, see the Sep 8 Solo mode instructions doc):
   - Never store, embed, or redistribute the source video anywhere in the
     app or its assets. `grab` downloads the video to a scratch temp
-    directory ONLY long enough to save the requested frame, then always
+    directory ONLY long enough to save the requested frame(s), then always
     deletes it (the `finally` block runs even if extraction fails).
-  - Output is joint/landmark coordinates ONLY. The extracted frame image
-    itself is scratch input to `detect`, not a deliverable -- delete it
-    once the JSON is produced.
+  - Output is joint/landmark coordinates ONLY. The extracted frame image(s)
+    are scratch input to `detect`, not a deliverable -- delete them once
+    the JSON is produced.
   - Pull isolated key poses at the peak moment of a move -- never a
     continuous sequence -- and spread sourcing across multiple videos per
-    move. This script extracts single timestamps one at a time by design;
-    it has no "extract every frame" mode.
+    move.
+  - `--cluster` samples a TIGHT burst of frames (default: a handful within
+    ~120ms) around one timestamp and averages them, purely to denoise a
+    single held pose against motion blur or one bad detection -- it is
+    still one moment, not a sequence. The window is deliberately small and
+    capped; this is not a way to extract a move's motion arc from one
+    video. A move's actual motion arc (its beginning, continuation, and
+    follow-through) should instead be built by pulling separate isolated
+    poses from DIFFERENT videos of different performers doing the same
+    move, each contributing one moment -- never by densely sampling a
+    single source.
 
 Usage:
-  python3 extract_pose.py grab <youtube-url> <timestamp-seconds> <output-frame.jpg>
-  python3 extract_pose.py detect <frame.jpg> <output-json> [--label ...] [--source-note ...]
+  python3 extract_pose.py grab <youtube-url> <timestamp-seconds> <output-frame-prefix.jpg> [--cluster N] [--window-ms W]
+  python3 extract_pose.py detect <frame.jpg> [<frame2.jpg> ...] <output-json> [--label ...] [--source-note ...]
 """
 import argparse
 import json
@@ -63,21 +72,54 @@ def download_video(url: str, dest_dir: str) -> str:
 
 
 def cmd_grab(args):
+    if args.cluster < 1:
+        print("--cluster must be >= 1", file=sys.stderr)
+        sys.exit(1)
+    # Capped hard, not just defaulted -- this is denoising for ONE pose, not
+    # a way to pull a move's motion out of a single video. See the legal
+    # guardrail note in the module docstring. Checked before importing
+    # cv2/downloading anything, so a bad value refuses instantly.
+    if args.cluster > 7:
+        print("--cluster > 7 defeats the point (isolated pose, not a sequence) -- refusing", file=sys.stderr)
+        sys.exit(1)
+    if args.window_ms > 300:
+        print("--window-ms > 300 starts to span real motion, not one held pose -- refusing", file=sys.stderr)
+        sys.exit(1)
+
     import tempfile
     import cv2
+
+    base, ext = os.path.splitext(args.output_frame)
+    os.makedirs(os.path.dirname(args.output_frame) or ".", exist_ok=True)
 
     with tempfile.TemporaryDirectory() as tmp:
         video_path = download_video(args.url, tmp)
         cap = cv2.VideoCapture(video_path)
-        cap.set(cv2.CAP_PROP_POS_MSEC, args.timestamp * 1000)
-        ok, frame = cap.read()
+        written = []
+        if args.cluster == 1:
+            offsets_ms = [0.0]
+        else:
+            half = args.window_ms / 2
+            offsets_ms = [-half + i * (args.window_ms / (args.cluster - 1)) for i in range(args.cluster)]
+        for i, off in enumerate(offsets_ms):
+            ts_ms = max(0.0, args.timestamp * 1000 + off)
+            cap.set(cv2.CAP_PROP_POS_MSEC, ts_ms)
+            ok, frame = cap.read()
+            if not ok:
+                print(f"Could not read frame at {ts_ms/1000:.3f}s (offset {off:+.0f}ms) -- skipping", file=sys.stderr)
+                continue
+            # "__c<i>" (double underscore + a letter, never bare digits) so
+            # batch_detect.py can safely group a cluster's files back into
+            # one pose without ever colliding with a real label that happens
+            # to end in digits (e.g. a YouTube video id).
+            out_path = args.output_frame if args.cluster == 1 else f"{base}__c{i}{ext}"
+            cv2.imwrite(out_path, frame)
+            written.append(out_path)
         cap.release()
-        if not ok:
-            print(f"Could not read frame at {args.timestamp}s", file=sys.stderr)
+        if not written:
+            print("No frames could be read", file=sys.stderr)
             sys.exit(1)
-        os.makedirs(os.path.dirname(args.output_frame) or ".", exist_ok=True)
-        cv2.imwrite(args.output_frame, frame)
-    print(f"Wrote {args.output_frame} (source video discarded)")
+    print(f"Wrote {len(written)} frame(s): {', '.join(written)} (source video discarded)")
 
 
 LANDMARK_NAMES = [
@@ -107,19 +149,36 @@ def cmd_detect(args):
         min_pose_detection_confidence=0.5,
         min_pose_presence_confidence=0.5,
     )
-    with PoseLandmarker.create_from_options(options) as landmarker:
-        mp_image = mp.Image.create_from_file(args.frame)
-        result = landmarker.detect(mp_image)
 
-    if not result.pose_landmarks:
-        print("No pose detected", file=sys.stderr)
+    per_frame = []  # list of {name: {x,y,z,visibility}} dicts, one per successfully-detected frame
+    with PoseLandmarker.create_from_options(options) as landmarker:
+        for frame_path in args.frames:
+            mp_image = mp.Image.create_from_file(frame_path)
+            result = landmarker.detect(mp_image)
+            if not result.pose_landmarks:
+                print(f"No pose detected in {frame_path} -- excluded from average", file=sys.stderr)
+                continue
+            pose = result.pose_landmarks[0]
+            per_frame.append({LANDMARK_NAMES[i]: lm for i, lm in enumerate(pose)})
+
+    if not per_frame:
+        print("No pose detected in any frame", file=sys.stderr)
         sys.exit(1)
 
-    pose = result.pose_landmarks[0]
-    landmarks = [
-        {"name": LANDMARK_NAMES[i], "x": round(lm.x, 4), "y": round(lm.y, 4), "z": round(lm.z, 4), "visibility": round(lm.visibility, 3)}
-        for i, lm in enumerate(pose)
-    ]
+    # A tight burst around one timestamp (see --cluster in `grab`) averages
+    # to a single denoised pose here -- still one moment, just more robust
+    # against motion blur or one bad detection on any single frame.
+    n = len(per_frame)
+    landmarks = []
+    for name in LANDMARK_NAMES:
+        pts = [f[name] for f in per_frame]
+        landmarks.append({
+            "name": name,
+            "x": round(sum(p.x for p in pts) / n, 4),
+            "y": round(sum(p.y for p in pts) / n, 4),
+            "z": round(sum(p.z for p in pts) / n, 4),
+            "visibility": round(sum(p.visibility for p in pts) / n, 3),
+        })
 
     os.makedirs(os.path.dirname(args.output_json) or ".", exist_ok=True)
     with open(args.output_json, "w") as f:
@@ -127,26 +186,29 @@ def cmd_detect(args):
             {
                 "label": args.label,
                 "source_note": args.source_note,
+                "frames_averaged": n,
                 "landmarks": landmarks,
             },
             f,
             indent=2,
         )
-    print(f"Wrote {args.output_json} ({len(landmarks)} landmarks)")
+    print(f"Wrote {args.output_json} ({len(landmarks)} landmarks, averaged over {n}/{len(args.frames)} frame(s))")
 
 
 def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
 
-    g = sub.add_parser("grab", help="Download a video and save one paused frame (run locally)")
+    g = sub.add_parser("grab", help="Download a video and save one paused frame, or a small denoising cluster (run locally)")
     g.add_argument("url")
     g.add_argument("timestamp", type=float)
     g.add_argument("output_frame")
+    g.add_argument("--cluster", type=int, default=1, help="Frames to sample around the timestamp for averaging (1-7, default 1)")
+    g.add_argument("--window-ms", type=float, default=120, help="Total span in ms the cluster is spread across (max 300, default 120)")
     g.set_defaults(func=cmd_grab)
 
-    d = sub.add_parser("detect", help="Run pose detection on an extracted frame (run in CI)")
-    d.add_argument("frame")
+    d = sub.add_parser("detect", help="Run pose detection on one or more extracted frames and average them (run in CI)")
+    d.add_argument("frames", nargs="+", help="One frame for a single-shot pose, or several (e.g. a --cluster burst) to average")
     d.add_argument("output_json")
     d.add_argument("--label", default="")
     d.add_argument("--source-note", default="", help="e.g. genre/video id, for provenance -- never the video itself")
