@@ -7,21 +7,20 @@ import { GradientButton } from "./components/GradientButton";
 import { OutlineButton } from "./components/OutlineButton";
 import { colors, fonts, textOnImageShadow } from "./theme";
 import { genreForDance } from "./lib/danceGenreMap";
-import { computeMovesScore, computeRhythmScore, computeBeatAlignmentScore, type Pose } from "./lib/danceScoring";
+import { computeMovesScore, computeRhythmScore, computeBeatAlignmentScore, secondsWithVisibleBody, MIN_VISIBLE_SECONDS, type Pose } from "./lib/danceScoring";
 import { RECORDING_WINDOW_SEC } from "./lib/constants";
 import poseReferenceData from "../assets/data/pose-reference.json";
 
 const REFERENCE_POSES = poseReferenceData as Record<string, { label: string; landmarks: Pose }[]>;
 
-// Old random ranges, kept as the fallback for any dance without reference
-// pose data yet (see app/lib/danceGenreMap.ts) and as the floor/ceiling feel
-// for real scores below, so the UI's bar-fill math (rhythmScore/40,
-// physScore/60) keeps behaving the same regardless of which path scored.
-function randomRhythmScore() {
-  return Math.floor(Math.random() * 40) + 20;
+// Points per round: rhythm 20-60, moves 20-80 (the original placeholder
+// ranges, kept so leaderboard totals stay on the same scale). The bars
+// fill by the underlying 0-1 score, not by these point values.
+function rhythmPoints(norm: number) {
+  return Math.round(norm * 40) + 20;
 }
-function randomPhysScore() {
-  return Math.floor(Math.random() * 60) + 20;
+function movesPoints(norm: number) {
+  return Math.round(norm * 60) + 20;
 }
 
 // bg_reveal.jpg's native pixel dimensions, and the two LED-screen frame
@@ -84,49 +83,44 @@ export default function Reveal() {
   const physAnim = useRef(new Animated.Value(0)).current;
   const textAnim = useRef(new Animated.Value(0)).current;
 
-  // Real scoring when the round's genre has reference pose data (see
-  // app/lib/danceGenreMap.ts) and the recording actually captured usable
-  // frames; falls back to the original random placeholder otherwise.
-  //
-  // Rhythm specifically has three tiers, in order of preference: real
-  // beat-alignment against the track that actually played (danceTrack is
-  // only set when the round's genre had music -- see app/lib/danceMusic.ts
-  // and recording.tsx), then the energy/oscillation proxy for a genre with
-  // pose coverage but no music yet, then the plain random fallback.
-  const [rhythmScore] = useState(() => {
+  // If the camera never really saw a body (lens blocked, player out of
+  // frame), there is nothing to score -- the round gets an explicit
+  // "couldn't see you" screen and 0 points instead of a made-up score.
+  // (This used to fall through to a random placeholder, which made a
+  // blocked camera look exactly like a real round.)
+  const [wasSeen] = useState(() => secondsWithVisibleBody(capturedFrames) >= MIN_VISIBLE_SECONDS);
+
+  // Rhythm prefers real beat-alignment against the track that actually
+  // played (danceTrack -- see app/lib/danceMusic.ts and recording.tsx),
+  // then the energy/oscillation proxy if the track didn't play.
+  const [rhythmNorm] = useState(() => {
     const beatNorm = danceTrack
       ? computeBeatAlignmentScore(capturedFrames, danceTrack.grid.beatTimesSec, danceTrack.startTimestampMs, RECORDING_WINDOW_SEC)
       : null;
-    if (beatNorm !== null) return Math.round(beatNorm * 40) + 20;
-    const rhythmNorm = computeRhythmScore(capturedFrames);
-    return rhythmNorm !== null ? Math.round(rhythmNorm * 40) + 20 : randomRhythmScore();
+    return beatNorm ?? computeRhythmScore(capturedFrames) ?? 0;
   });
-  const [physScore] = useState(() => {
+  const [movesNorm] = useState(() => {
     const genre = currentGenre ? genreForDance(currentGenre.name) : null;
     const referencePoses = genre ? REFERENCE_POSES[genre]?.map(p => p.landmarks) ?? [] : [];
-    const movesNorm =
-      referencePoses.length > 0
-        ? computeMovesScore(capturedFrames.map(f => f.pose), referencePoses)
-        : null;
-    return movesNorm !== null ? Math.round(movesNorm * 60) + 20 : randomPhysScore();
+    return computeMovesScore(capturedFrames.map(f => f.pose), referencePoses) ?? 0;
   });
   const scoredRef = useRef(false);
 
   useEffect(() => {
-    setTimeout(() => setPhase("splitscreen"), 2000);
+    setTimeout(() => setPhase(wasSeen ? "splitscreen" : "notseen"), 2000);
   }, []);
 
   useEffect(() => {
     if (phase === "scores") {
       Animated.parallel([
-        Animated.timing(rhythmAnim, { toValue: rhythmScore / 40, duration: 1400, useNativeDriver: false }),
-        Animated.timing(physAnim, { toValue: physScore / 60, duration: 1400, useNativeDriver: false }),
+        Animated.timing(rhythmAnim, { toValue: rhythmNorm, duration: 1400, useNativeDriver: false }),
+        Animated.timing(physAnim, { toValue: movesNorm, duration: 1400, useNativeDriver: false }),
         Animated.timing(textAnim, { toValue: 1, duration: 1400, useNativeDriver: false }),
       ]).start();
 
       if (!scoredRef.current) {
         scoredRef.current = true;
-        addScore(currentPlayerIndex, rhythmScore + physScore);
+        addScore(currentPlayerIndex, rhythmPoints(rhythmNorm) + movesPoints(movesNorm));
       }
     }
   }, [phase]);
@@ -155,6 +149,22 @@ export default function Reveal() {
     nextRound();
     setCurrentPlayerIndex(0);
     router.push("/leaderboard");
+  };
+
+  // Same player, same dance, fresh take -- replace (not push) so repeated
+  // retries don't stack reveal/recording screens under each other.
+  const handleRetry = () => {
+    router.replace("/recording");
+  };
+
+  // Escape hatch so a round can't dead-end if the camera just won't see
+  // the player (bad light, broken camera): moves on with 0 points.
+  const handleSkip = () => {
+    if (!scoredRef.current) {
+      scoredRef.current = true;
+      addScore(currentPlayerIndex, 0);
+    }
+    handleNext();
   };
 
   return (
@@ -199,6 +209,21 @@ export default function Reveal() {
         <View style={{ alignItems: "center" }}>
           <Text style={{ color: colors.pink, fontSize: 16, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", marginBottom: 24, ...textOnImageShadow }}>Calculating...</Text>
           <Text style={{ fontSize: 80 }}>⚡</Text>
+        </View>
+      )}
+
+      {phase === "notseen" && (
+        <View style={{ flex: 1, width: "100%", alignItems: "center", justifyContent: "space-between" }}>
+          <Text style={{ color: colors.mint, fontSize: 20, fontFamily: fonts.displayBold, textAlign: "center", ...textOnImageShadow }}>{currentPlayer ? currentPlayer.name : ""}</Text>
+          <View style={{ alignItems: "center" }}>
+            <Text style={{ fontSize: 64 }}>🙈</Text>
+            <Text style={{ color: colors.pink, fontSize: 32, fontFamily: fonts.displayBold, marginTop: 12, textAlign: "center", ...textOnImageShadow }}>We couldn't see you!</Text>
+            <Text style={{ color: colors.mint, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 2, marginTop: 10, textAlign: "center", textTransform: "uppercase", ...textOnImageShadow }}>Step back so your whole body fits in the camera</Text>
+          </View>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <GradientButton label="AGAIN" onPress={handleRetry} style={{ paddingHorizontal: 48, marginRight: 16 }} />
+            <OutlineButton label="SKIP · 0 POINTS" onPress={handleSkip} style={{ paddingHorizontal: 24, paddingVertical: 14 }} />
+          </View>
         </View>
       )}
 

@@ -83,6 +83,21 @@ function normalizeAll(frames: Pose[]): NormalizedPose[] {
   return out;
 }
 
+// Minimum distinct wall-clock seconds of the take that must contain a
+// usable (torso-visible) pose before the round counts as "we saw you".
+// Counted in seconds rather than frames so it doesn't depend on how fast
+// the pose model actually runs on a given device, and so one brief glimpse
+// (someone walking past, a hand over the lens slipping) can't pass.
+export const MIN_VISIBLE_SECONDS = 3;
+
+export function secondsWithVisibleBody(capturedFrames: { pose: Pose; timestampMs: number }[]): number {
+  const seconds = new Set<number>();
+  for (const f of capturedFrames) {
+    if (normalizePose(f.pose)) seconds.add(Math.floor(f.timestampMs / 1000));
+  }
+  return seconds.size;
+}
+
 // "Did you hit these moves at some point?" -- for each reference pose,
 // find the player's closest matching moment anywhere in the take, then
 // average across all reference poses. Order-agnostic on purpose: reference
