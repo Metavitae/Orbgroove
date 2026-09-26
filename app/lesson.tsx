@@ -210,7 +210,7 @@ function DanceStage({ danceKey, onFinish, onQuit }: { danceKey: DanceKey; onFini
             onOutputOrientationChanged={poseSolution.cameraOrientationChangedHandler}
           />
         )}
-        <View style={{ position: "absolute", top: 16, left: 16, right: 16, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+        <View style={{ position: "absolute", top: 30, left: 16, right: 16, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
           <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 3, textTransform: "uppercase", ...textOnImageShadow }}>{dance.label} · copy Ribbons</Text>
           <OutlineButton label="STOP" onPress={onQuit} style={{ paddingHorizontal: 18, paddingVertical: 8 }} />
         </View>

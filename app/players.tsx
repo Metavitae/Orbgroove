@@ -178,20 +178,24 @@ export default function Players() {
         </View>
       )}
 
+      {/* Pinned just under the status bar, out of the centered column: in the
+          column it pushed the content taller than the screen and ran into
+          the phone's clock (seen on the POCO, 2026-09-26). */}
+      {step === "type" && players.length > 0 && (
+        <View style={{ position: "absolute", top: 26, left: 20, right: 20 }}>
+          <Text numberOfLines={1} style={{ color: colors.mint, fontSize: 14, fontFamily: fonts.displayRegular, ...textOnImageShadow }}>
+            <Text style={{ color: colors.pink, fontSize: 10, fontFamily: fonts.labelMedium, letterSpacing: 3 }}>PLAYERS  </Text>
+            {players.map((p, i) => (
+              <Text key={i}>
+                {i > 0 ? "  ·  " : ""}{i + 1}. {p.name} <Text style={{ color: colors.mintDim, fontSize: 11, fontFamily: fonts.labelRegular }}>({p.type})</Text>
+              </Text>
+            ))}
+          </Text>
+        </View>
+      )}
+
       {step === "type" && (
         <View style={{ width: "100%" }}>
-          {players.length > 0 && (
-            <View style={{ marginBottom: 10, marginTop: 12 }}>
-              <Text numberOfLines={1} style={{ color: colors.mint, fontSize: 14, fontFamily: fonts.displayRegular, ...textOnImageShadow }}>
-                <Text style={{ color: colors.pink, fontSize: 10, fontFamily: fonts.labelMedium, letterSpacing: 3 }}>PLAYERS  </Text>
-                {players.map((p, i) => (
-                  <Text key={i}>
-                    {i > 0 ? "  ·  " : ""}{i + 1}. {p.name} <Text style={{ color: colors.mintDim, fontSize: 11, fontFamily: fonts.labelRegular }}>({p.type})</Text>
-                  </Text>
-                ))}
-              </Text>
-            </View>
-          )}
           {players.length >= MAX_PLAYERS ? (
             <View style={{ alignItems: "center", marginBottom: 4 }}>
               <Text style={{ color: colors.pink, fontSize: 12, fontFamily: fonts.labelMedium, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8, textAlign: "center", ...textOnImageShadow }}>Party's Full</Text>
