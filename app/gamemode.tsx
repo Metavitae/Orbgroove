@@ -36,8 +36,8 @@ export default function GameMode() {
       <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: colors.scrim }} pointerEvents="none" />
       {step === "mode" && (
         <View style={{ width: "100%", alignItems: "center" }}>
-          <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", marginBottom: 16, ...textOnImageShadow }}>Game Mode</Text>
-          <Text style={{ color: colors.mint, fontSize: 36, fontFamily: fonts.displaySemiBold, fontStyle: "italic", marginBottom: 60, textAlign: "center", ...textOnImageShadow }}>How shall we play?</Text>
+          <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelBold, letterSpacing: 4, textTransform: "uppercase", marginBottom: 16, ...textOnImageShadow }}>Game Mode</Text>
+          <Text style={{ color: colors.mint, fontSize: 36, fontFamily: fonts.displayBold, marginBottom: 60, textAlign: "center", ...textOnImageShadow }}>How shall we play?</Text>
           <GradientButton
             label="Pure Scoring"
             subtitle="AI judges everything"
@@ -55,8 +55,8 @@ export default function GameMode() {
 
       {step === "rounds" && (
         <View style={{ width: "100%", alignItems: "center" }}>
-          <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", marginBottom: 16, ...textOnImageShadow }}>Rounds</Text>
-          <Text style={{ color: colors.mint, fontSize: 36, fontFamily: fonts.displaySemiBold, fontStyle: "italic", marginBottom: 60, textAlign: "center", ...textOnImageShadow }}>How many rounds?</Text>
+          <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelBold, letterSpacing: 4, textTransform: "uppercase", marginBottom: 16, ...textOnImageShadow }}>Rounds</Text>
+          <Text style={{ color: colors.mint, fontSize: 36, fontFamily: fonts.displayBold, marginBottom: 60, textAlign: "center", ...textOnImageShadow }}>How many rounds?</Text>
           {roundOptions.map(count => (
             <OutlineButton key={count} label={`${count} Rounds`} onPress={() => chooseRounds(count)} style={{ width: "100%", marginBottom: 16 }} />
           ))}

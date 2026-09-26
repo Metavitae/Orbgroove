@@ -58,25 +58,25 @@ export default function Winner() {
         }}
       >
         <Text style={{ fontSize: 52 }}>🏆</Text>
-        <Text style={{ color: colors.pink, fontSize: 12, fontFamily: fonts.labelMedium, letterSpacing: 3, textTransform: "uppercase", marginTop: 10, marginBottom: 4, ...textOnImageShadow }}>Score Champion</Text>
+        <Text style={{ color: colors.pink, fontSize: 12, fontFamily: fonts.labelBold, letterSpacing: 3, textTransform: "uppercase", marginTop: 10, marginBottom: 4, ...textOnImageShadow }}>Score Champion</Text>
         <Text style={{ color: colors.mint, fontSize: 26, fontFamily: fonts.displayBold, textAlign: "center", ...textOnImageShadow }}>{champion ? champion.name : "—"}</Text>
         {champion && (
-          <Text style={{ color: colors.mintDim, fontSize: 13, fontFamily: fonts.displayRegular, fontStyle: "italic", marginTop: 4, textAlign: "center", ...textOnImageShadow }}>{champion.score} points</Text>
+          <Text style={{ color: colors.mintDim, fontSize: 13, fontFamily: fonts.displaySemiBold, marginTop: 4, textAlign: "center", ...textOnImageShadow }}>{champion.score} points</Text>
         )}
       </Animated.View>
 
       {mode === "crowd" && crowdFavorite && (
         <Animated.View style={{ alignItems: "center", opacity: fadeAnim, marginBottom: 20, width: "100%", backgroundColor: "rgba(6,20,15,0.55)", borderWidth: 1, borderColor: "rgba(127,207,182,0.3)", borderRadius: 16, padding: 14 }}>
           <Text style={{ fontSize: 34 }}>👑</Text>
-          <Text style={{ color: "#00C2FF", fontSize: 12, fontFamily: fonts.labelMedium, letterSpacing: 3, textTransform: "uppercase", marginTop: 8, marginBottom: 4, ...textOnImageShadow }}>Crowd Favorite</Text>
+          <Text style={{ color: "#00C2FF", fontSize: 12, fontFamily: fonts.labelBold, letterSpacing: 3, textTransform: "uppercase", marginTop: 8, marginBottom: 4, ...textOnImageShadow }}>Crowd Favorite</Text>
           <Text style={{ color: colors.mint, fontSize: 20, fontFamily: fonts.displayBold, textAlign: "center", ...textOnImageShadow }}>{crowdFavorite.name}</Text>
-          <Text style={{ color: colors.mintDim, fontSize: 13, fontFamily: fonts.displayRegular, fontStyle: "italic", marginTop: 4, textAlign: "center", ...textOnImageShadow }}>{crowdFavorite.cheerScore} cheer</Text>
+          <Text style={{ color: colors.mintDim, fontSize: 13, fontFamily: fonts.displaySemiBold, marginTop: 4, textAlign: "center", ...textOnImageShadow }}>{crowdFavorite.cheerScore} cheer</Text>
         </Animated.View>
       )}
 
       <GradientButton label="PLAY AGAIN" onPress={handlePlayAgain} style={{ width: "100%" }} />
       <TouchableOpacity onPress={handleExit} style={{ marginTop: 10, alignItems: "center", padding: 10 }}>
-        <Text style={{ color: colors.mintDim, fontSize: 12, fontFamily: fonts.labelMedium, letterSpacing: 3, textTransform: "uppercase", ...textOnImageShadow }}>Exit to Menu</Text>
+        <Text style={{ color: colors.mintDim, fontSize: 12, fontFamily: fonts.labelBold, letterSpacing: 3, textTransform: "uppercase", ...textOnImageShadow }}>Exit to Menu</Text>
       </TouchableOpacity>
     </ImageBackground>
   );

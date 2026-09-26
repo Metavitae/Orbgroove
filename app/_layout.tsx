@@ -2,11 +2,11 @@ import { Stack } from "expo-router";
 import { useEffect } from "react";
 import * as ScreenOrientation from "expo-screen-orientation";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { useFonts, Fredoka_400Regular, Fredoka_600SemiBold, Fredoka_700Bold } from "@expo-google-fonts/fredoka";
+import { useFonts, Fredoka_600SemiBold, Fredoka_700Bold } from "@expo-google-fonts/fredoka";
 import {
-  JetBrainsMono_400Regular,
-  JetBrainsMono_500Medium,
+  JetBrainsMono_600SemiBold,
   JetBrainsMono_700Bold,
+  JetBrainsMono_800ExtraBold,
 } from "@expo-google-fonts/jetbrains-mono";
 import { GameProvider } from "./context/GameContext";
 
@@ -17,12 +17,11 @@ export default function RootLayout() {
   // system font and pick up the brand fonts on the re-render once this
   // resolves -- worst case is one flash of the wrong font, not a stuck app.
   const [, fontError] = useFonts({
-    Fredoka_400Regular,
     Fredoka_600SemiBold,
     Fredoka_700Bold,
-    JetBrainsMono_400Regular,
-    JetBrainsMono_500Medium,
+    JetBrainsMono_600SemiBold,
     JetBrainsMono_700Bold,
+    JetBrainsMono_800ExtraBold,
   });
 
   useEffect(() => {

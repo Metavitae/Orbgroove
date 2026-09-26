@@ -54,8 +54,8 @@ export default function Lesson() {
       <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: colors.scrim }} pointerEvents="none" />
       {!result && (
         <View style={{ width: "100%", alignItems: "center" }}>
-          <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", marginBottom: 12, ...textOnImageShadow }}>Practice with Ribbons</Text>
-          <Text style={{ color: colors.mint, fontSize: 32, fontFamily: fonts.displaySemiBold, fontStyle: "italic", marginBottom: 28, textAlign: "center", ...textOnImageShadow }}>Pick a dance, then copy Ribbons</Text>
+          <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelBold, letterSpacing: 4, textTransform: "uppercase", marginBottom: 12, ...textOnImageShadow }}>Practice with Ribbons</Text>
+          <Text style={{ color: colors.mint, fontSize: 32, fontFamily: fonts.displayBold, marginBottom: 28, textAlign: "center", ...textOnImageShadow }}>Pick a dance, then copy Ribbons</Text>
           <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "center", gap: 12 }}>
             {(Object.keys(RIBBONS) as DanceKey[]).map((k) => (
               <OutlineButton key={k} label={RIBBONS[k].label.toUpperCase()} onPress={() => { setDance(k); setRunId((n) => n + 1); }} style={{ minWidth: 200 }} />
@@ -66,7 +66,7 @@ export default function Lesson() {
       )}
       {result && (
         <View style={{ width: "100%", alignItems: "center" }}>
-          <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", marginBottom: 8, ...textOnImageShadow }}>{dance ? RIBBONS[dance].label : ""} with Ribbons</Text>
+          <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelBold, letterSpacing: 4, textTransform: "uppercase", marginBottom: 8, ...textOnImageShadow }}>{dance ? RIBBONS[dance].label : ""} with Ribbons</Text>
           {result.seenShare < 0.3 ? (
             <Text style={{ color: colors.mint, fontSize: 30, fontFamily: fonts.displayBold, textAlign: "center", marginBottom: 24, ...textOnImageShadow }}>
               We couldn't see you most of the time.{"\n"}Step back so your whole body fits in the camera.
@@ -74,7 +74,7 @@ export default function Lesson() {
           ) : (
             <>
               <Text style={{ color: colors.mint, fontSize: 96, fontFamily: fonts.displayBold, ...textOnImageShadow }}>{Math.round(result.match * 100)}%</Text>
-              <Text style={{ color: colors.mint, fontSize: 22, fontFamily: fonts.displaySemiBold, marginBottom: 24, textAlign: "center", ...textOnImageShadow }}>
+              <Text style={{ color: colors.mint, fontSize: 22, fontFamily: fonts.displayBold, marginBottom: 24, textAlign: "center", ...textOnImageShadow }}>
                 {result.match >= 0.7 ? "You're dancing like Ribbons!" : result.match >= 0.4 ? "Getting there. Go again?" : "Keep practicing, you've got this."}
               </Text>
             </>
@@ -211,18 +211,18 @@ function DanceStage({ danceKey, onFinish, onQuit }: { danceKey: DanceKey; onFini
           />
         )}
         <View style={{ position: "absolute", top: 30, left: 16, right: 16, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-          <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 3, textTransform: "uppercase", ...textOnImageShadow }}>{dance.label} · copy Ribbons</Text>
+          <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelBold, letterSpacing: 3, textTransform: "uppercase", ...textOnImageShadow }}>{dance.label} · copy Ribbons</Text>
           <OutlineButton label="STOP" onPress={onQuit} style={{ paddingHorizontal: 18, paddingVertical: 8 }} />
         </View>
         {phase === "framing" ? (
           <View style={{ ...StyleSheet.absoluteFillObject, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(6,20,15,0.45)", padding: 16 }}>
-            <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", marginBottom: 12, ...textOnImageShadow }}>Get in the picture, head to feet</Text>
+            <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelBold, letterSpacing: 4, textTransform: "uppercase", marginBottom: 12, ...textOnImageShadow }}>Get in the picture, head to feet</Text>
             <Text style={{ color: colors.mint, fontSize: 36, fontFamily: fonts.displayBold, textAlign: "center", marginBottom: 24, ...textOnImageShadow }}>{FRAMING_TEXT[framing]}</Text>
             <OutlineButton label="START ANYWAY" onPress={() => setPhase("countdown")} style={{ paddingVertical: 10 }} />
           </View>
         ) : phase === "countdown" ? (
           <View style={{ ...StyleSheet.absoluteFillObject, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(6,20,15,0.45)" }}>
-            <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", marginBottom: 12, ...textOnImageShadow }}>Step back so we can see all of you</Text>
+            <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelBold, letterSpacing: 4, textTransform: "uppercase", marginBottom: 12, ...textOnImageShadow }}>Step back so we can see all of you</Text>
             <Text style={{ color: colors.mint, fontSize: 140, fontFamily: fonts.displayBold, ...textOnImageShadow }}>{count}</Text>
           </View>
         ) : (
@@ -231,7 +231,7 @@ function DanceStage({ danceKey, onFinish, onQuit }: { danceKey: DanceKey; onFini
             <View style={{ width: "100%", height: 14, borderRadius: 7, backgroundColor: "rgba(6,20,15,0.6)", overflow: "hidden", marginTop: 6 }}>
               <View style={{ width: `${pct ?? 0}%`, height: "100%", backgroundColor: meterColor }} />
             </View>
-            <Text style={{ color: colors.mint, fontSize: 12, fontFamily: fonts.labelMedium, letterSpacing: 2, textTransform: "uppercase", marginTop: 6, ...textOnImageShadow }}>Match with Ribbons</Text>
+            <Text style={{ color: colors.mint, fontSize: 12, fontFamily: fonts.labelBold, letterSpacing: 2, textTransform: "uppercase", marginTop: 6, ...textOnImageShadow }}>Match with Ribbons</Text>
           </View>
         )}
       </View>

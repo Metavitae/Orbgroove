@@ -32,13 +32,13 @@ export function OutlineButton({
         numberOfLines={1}
         style={
           plain
-            ? { color: colors.mint, fontSize: 14, fontFamily: fonts.displaySemiBold }
-            : { color: colors.mint, fontSize: 16, fontFamily: fonts.labelBold, letterSpacing: 3, textTransform: "uppercase" }
+            ? { color: colors.mint, fontSize: 14, fontFamily: fonts.displayBold }
+            : { color: colors.mint, fontSize: 16, fontFamily: fonts.labelExtraBold, letterSpacing: 3, textTransform: "uppercase" }
         }
       >
         {label}
       </Text>
-      {subtitle && <Text style={{ color: colors.mintDim, fontSize: 11, fontFamily: fonts.labelRegular, marginTop: 4, opacity: 0.85 }}>{subtitle}</Text>}
+      {subtitle && <Text style={{ color: colors.mintDim, fontSize: 11, fontFamily: fonts.labelSemiBold, marginTop: 4, opacity: 0.85 }}>{subtitle}</Text>}
     </TouchableOpacity>
   );
 }

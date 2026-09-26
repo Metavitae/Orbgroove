@@ -16,14 +16,16 @@ export const colors = {
 
 // Brand type system: Fredoka for display/headline text, JetBrains Mono for
 // small uppercase labels and buttons. Weight names match the font-family
-// strings registered by useFonts in _layout.tsx.
+// strings registered by useFonts in _layout.tsx. Everything was moved one
+// weight heavier on Chancla's call (2026-09-26); the thin weights are no
+// longer used. Fredoka has no italic -- asking for one makes Android fall
+// back to its thin system italic, so don't combine these with fontStyle.
 export const fonts = {
-  displayRegular: "Fredoka_400Regular",
   displaySemiBold: "Fredoka_600SemiBold",
   displayBold: "Fredoka_700Bold",
-  labelRegular: "JetBrainsMono_400Regular",
-  labelMedium: "JetBrainsMono_500Medium",
+  labelSemiBold: "JetBrainsMono_600SemiBold",
   labelBold: "JetBrainsMono_700Bold",
+  labelExtraBold: "JetBrainsMono_800ExtraBold",
 };
 
 // Spread onto any Text style that sits directly on photographic/busy

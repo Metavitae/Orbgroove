@@ -218,7 +218,7 @@ export default function Reveal() {
                 pointerEvents="none"
               >
                 {media ?? <Text style={{ fontSize: 60 }}>{emoji}</Text>}
-                <Text style={{ color, fontSize: 15, fontFamily: fonts.labelBold, marginTop: media ? 0 : 12, letterSpacing: 2, ...(media ? { position: "absolute" as const, bottom: 10 } : {}), ...textOnImageShadow }}>{label}</Text>
+                <Text style={{ color, fontSize: 15, fontFamily: fonts.labelExtraBold, marginTop: media ? 0 : 12, letterSpacing: 2, ...(media ? { position: "absolute" as const, bottom: 10 } : {}), ...textOnImageShadow }}>{label}</Text>
               </View>
             );
           })}
@@ -227,7 +227,7 @@ export default function Reveal() {
 
       {phase === "suspense" && (
         <View style={{ alignItems: "center" }}>
-          <Text style={{ color: colors.pink, fontSize: 16, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", marginBottom: 24, ...textOnImageShadow }}>Calculating...</Text>
+          <Text style={{ color: colors.pink, fontSize: 16, fontFamily: fonts.labelBold, letterSpacing: 4, textTransform: "uppercase", marginBottom: 24, ...textOnImageShadow }}>Calculating...</Text>
           <Text style={{ fontSize: 80 }}>⚡</Text>
         </View>
       )}
@@ -238,7 +238,7 @@ export default function Reveal() {
           <View style={{ alignItems: "center" }}>
             <Text style={{ fontSize: 64 }}>🙈</Text>
             <Text style={{ color: colors.pink, fontSize: 32, fontFamily: fonts.displayBold, marginTop: 12, textAlign: "center", ...textOnImageShadow }}>We couldn't see you!</Text>
-            <Text style={{ color: colors.mint, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 2, marginTop: 10, textAlign: "center", textTransform: "uppercase", ...textOnImageShadow }}>Step back so your whole body fits in the camera</Text>
+            <Text style={{ color: colors.mint, fontSize: 13, fontFamily: fonts.labelBold, letterSpacing: 2, marginTop: 10, textAlign: "center", textTransform: "uppercase", ...textOnImageShadow }}>Step back so your whole body fits in the camera</Text>
           </View>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <GradientButton label="AGAIN" onPress={handleRetry} style={{ paddingHorizontal: 48, marginRight: 16 }} />
@@ -255,7 +255,7 @@ export default function Reveal() {
         <View style={{ flex: 1, width: "100%", alignItems: "center", justifyContent: "space-between" }}>
           <View style={{ alignItems: "center" }}>
             <Text style={{ color: colors.mint, fontSize: 20, fontFamily: fonts.displayBold, marginBottom: 8, textAlign: "center", ...textOnImageShadow }}>{currentPlayer ? currentPlayer.name : ""}</Text>
-            <Text style={{ color: colors.pink, fontSize: 14, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", textAlign: "center", ...textOnImageShadow }}>How did you do?</Text>
+            <Text style={{ color: colors.pink, fontSize: 14, fontFamily: fonts.labelBold, letterSpacing: 4, textTransform: "uppercase", textAlign: "center", ...textOnImageShadow }}>How did you do?</Text>
           </View>
           {/* Spacer matching the two video-comparison cards' old flow height --
               the actual cards are rendered as siblings below, absolutely
@@ -297,13 +297,13 @@ export default function Reveal() {
                   <View style={{ width: 44, flex: 1, backgroundColor: colors.card, borderRadius: 8, justifyContent: "flex-end", overflow: "hidden", marginBottom: 8 }}>
                     <Animated.View style={{ width: 44, height: rhythmHeight, backgroundColor: colors.cyan }} />
                   </View>
-                  <Text style={{ color: colors.mint, fontSize: 12, fontFamily: fonts.labelMedium, letterSpacing: 2, textTransform: "uppercase", ...textOnImageShadow }}>Rhythm</Text>
+                  <Text style={{ color: colors.mint, fontSize: 12, fontFamily: fonts.labelBold, letterSpacing: 2, textTransform: "uppercase", ...textOnImageShadow }}>Rhythm</Text>
                 </View>
                 <View style={{ flex: 1, alignItems: "center" }}>
                   <View style={{ width: 44, flex: 1, backgroundColor: colors.card, borderRadius: 8, justifyContent: "flex-end", overflow: "hidden", marginBottom: 8 }}>
                     <Animated.View style={{ width: 44, height: physHeight, backgroundColor: colors.pink }} />
                   </View>
-                  <Text style={{ color: colors.mint, fontSize: 12, fontFamily: fonts.labelMedium, letterSpacing: 2, textTransform: "uppercase", ...textOnImageShadow }}>Moves</Text>
+                  <Text style={{ color: colors.mint, fontSize: 12, fontFamily: fonts.labelBold, letterSpacing: 2, textTransform: "uppercase", ...textOnImageShadow }}>Moves</Text>
                 </View>
               </View>
               <View style={{ flex: 1, alignItems: "center", justifyContent: "flex-end", paddingBottom: 28 }}>

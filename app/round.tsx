@@ -72,17 +72,17 @@ export default function Round() {
       <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: colors.scrim }} pointerEvents="none" />
       {phase === "spinning" && (
         <View style={{ alignItems: "center" }}>
-          <Text style={{ color: colors.pink, fontSize: 11, fontFamily: fonts.labelMedium, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8, ...textOnImageShadow }}>
+          <Text style={{ color: colors.pink, fontSize: 11, fontFamily: fonts.labelBold, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8, ...textOnImageShadow }}>
             Round {currentRoundIndex + 1} of {roundCount}
           </Text>
-          <Text style={{ color: colors.mintDim, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", marginBottom: 40, ...textOnImageShadow }}>Get Ready...</Text>
+          <Text style={{ color: colors.mintDim, fontSize: 13, fontFamily: fonts.labelBold, letterSpacing: 4, textTransform: "uppercase", marginBottom: 40, ...textOnImageShadow }}>Get Ready...</Text>
           <Animated.Text style={{ fontSize: 100, transform: [{ rotate: spin }] }}>🌍</Animated.Text>
         </View>
       )}
       {phase === "reveal" && currentGenre && (
         <View style={{ alignItems: "center" }}>
           <Text style={{ color: colors.mint, fontSize: 42, fontFamily: fonts.displayBold, marginBottom: 12, ...textOnImageShadow }}>{currentGenre.name}</Text>
-          <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", marginBottom: 60, ...textOnImageShadow }}>
+          <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelBold, letterSpacing: 4, textTransform: "uppercase", marginBottom: 60, ...textOnImageShadow }}>
             {currentPlayer ? `${currentPlayer.name}, get dancing!` : "Get dancing!"}
           </Text>
           <GradientButton label="I'M READY" onPress={() => router.push("/recording")} />

@@ -320,7 +320,7 @@ export default function Recording() {
       />
       {phase === "framing" && (
         <View style={{ alignItems: "center" }}>
-          <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", marginBottom: 20, ...textOnImageShadow }}>
+          <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelBold, letterSpacing: 4, textTransform: "uppercase", marginBottom: 20, ...textOnImageShadow }}>
             {currentPlayer ? `${currentPlayer.name}, get in the picture` : "Get in the picture"}
           </Text>
           <Text style={{ color: colors.mint, fontSize: 40, fontFamily: fonts.displayBold, textAlign: "center", marginBottom: 32, ...textOnImageShadow }}>{FRAMING_TEXT[framing]}</Text>
@@ -329,7 +329,7 @@ export default function Recording() {
       )}
       {phase === "countdown" && (
         <View style={{ alignItems: "center" }}>
-          <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", marginBottom: 40, ...textOnImageShadow }}>
+          <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelBold, letterSpacing: 4, textTransform: "uppercase", marginBottom: 40, ...textOnImageShadow }}>
             {currentPlayer ? `${currentPlayer.name}, get in position!` : "Get in position!"}
           </Text>
           <Text style={{ color: colors.mint, fontSize: 160, fontFamily: fonts.displayBold, ...textOnImageShadow }}>{count}</Text>
@@ -341,7 +341,7 @@ export default function Recording() {
             <Text style={{ fontSize: 60 }}>🔴</Text>
           </Animated.View>
           <Text style={{ color: colors.mint, fontSize: 100, fontFamily: fonts.displayBold, ...textOnImageShadow }}>{timeLeft}</Text>
-          <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", marginTop: 16, ...textOnImageShadow }}>
+          <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelBold, letterSpacing: 4, textTransform: "uppercase", marginTop: 16, ...textOnImageShadow }}>
             {currentGenre ? `${currentGenre.name}!` : "Dance!"}
           </Text>
         </View>

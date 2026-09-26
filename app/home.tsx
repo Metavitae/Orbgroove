@@ -22,7 +22,7 @@ export default function Index() {
       <GradientButton label="START GAME" onPress={() => router.push("/gamemode")} style={{ marginTop: 40 }} />
       <OutlineButton label="PRACTICE WITH RIBBONS" onPress={() => router.push("/lesson" as any)} style={{ marginTop: 14, minWidth: 340 }} />
       <TouchableOpacity onPress={() => router.push("/pose-test")} style={{ marginTop: 20 }}>
-        <Text style={{ color: colors.mintDim, fontSize: 12, fontFamily: fonts.labelRegular, opacity: 0.5, ...textOnImageShadow }}>pose test (dev)</Text>
+        <Text style={{ color: colors.mintDim, fontSize: 12, fontFamily: fonts.labelSemiBold, opacity: 0.5, ...textOnImageShadow }}>pose test (dev)</Text>
       </TouchableOpacity>
     </ImageBackground>
   );

@@ -167,11 +167,11 @@ export default function Players() {
       {step === "announce" && (
         <View style={{ width: "100%", alignItems: "center" }}>
           <Text style={{ fontSize: 40, marginBottom: 20 }}>👀</Text>
-          <Text style={{ color: colors.pink, fontSize: 12, fontFamily: fonts.labelMedium, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8, ...textOnImageShadow }}>One More Thing</Text>
-          <Text style={{ color: colors.mint, fontSize: 22, fontFamily: fonts.displaySemiBold, fontStyle: "italic", marginBottom: 16, textAlign: "center", ...textOnImageShadow }}>
+          <Text style={{ color: colors.pink, fontSize: 12, fontFamily: fonts.labelBold, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8, ...textOnImageShadow }}>One More Thing</Text>
+          <Text style={{ color: colors.mint, fontSize: 22, fontFamily: fonts.displayBold, marginBottom: 16, textAlign: "center", ...textOnImageShadow }}>
             The crowd's not just watching tonight.
           </Text>
-          <Text style={{ color: colors.mintDim, fontSize: 14, fontFamily: fonts.displayRegular, textAlign: "center", marginBottom: 28, lineHeight: 20, ...textOnImageShadow }}>
+          <Text style={{ color: colors.mintDim, fontSize: 14, fontFamily: fonts.displaySemiBold, textAlign: "center", marginBottom: 28, lineHeight: 20, ...textOnImageShadow }}>
             How everyone reacts while people dance? That might matter more than you think.
           </Text>
           <GradientButton label="LET'S DANCE" onPress={() => setStep("type")} style={{ width: "100%" }} />
@@ -183,11 +183,11 @@ export default function Players() {
           the phone's clock (seen on the POCO, 2026-09-26). */}
       {step === "type" && players.length > 0 && (
         <View style={{ position: "absolute", top: 26, left: 20, right: 20 }}>
-          <Text numberOfLines={1} style={{ color: colors.mint, fontSize: 14, fontFamily: fonts.displayRegular, ...textOnImageShadow }}>
-            <Text style={{ color: colors.pink, fontSize: 10, fontFamily: fonts.labelMedium, letterSpacing: 3 }}>PLAYERS  </Text>
+          <Text numberOfLines={1} style={{ color: colors.mint, fontSize: 14, fontFamily: fonts.displaySemiBold, ...textOnImageShadow }}>
+            <Text style={{ color: colors.pink, fontSize: 10, fontFamily: fonts.labelBold, letterSpacing: 3 }}>PLAYERS  </Text>
             {players.map((p, i) => (
               <Text key={i}>
-                {i > 0 ? "  ·  " : ""}{i + 1}. {p.name} <Text style={{ color: colors.mintDim, fontSize: 11, fontFamily: fonts.labelRegular }}>({p.type})</Text>
+                {i > 0 ? "  ·  " : ""}{i + 1}. {p.name} <Text style={{ color: colors.mintDim, fontSize: 11, fontFamily: fonts.labelSemiBold }}>({p.type})</Text>
               </Text>
             ))}
           </Text>
@@ -198,17 +198,17 @@ export default function Players() {
         <View style={{ width: "100%" }}>
           {players.length >= MAX_PLAYERS ? (
             <View style={{ alignItems: "center", marginBottom: 4 }}>
-              <Text style={{ color: colors.pink, fontSize: 12, fontFamily: fonts.labelMedium, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8, textAlign: "center", ...textOnImageShadow }}>Party's Full</Text>
-              <Text style={{ color: colors.mintDim, fontSize: 15, fontFamily: fonts.displayRegular, textAlign: "center", ...textOnImageShadow }}>
+              <Text style={{ color: colors.pink, fontSize: 12, fontFamily: fonts.labelBold, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8, textAlign: "center", ...textOnImageShadow }}>Party's Full</Text>
+              <Text style={{ color: colors.mintDim, fontSize: 15, fontFamily: fonts.displaySemiBold, textAlign: "center", ...textOnImageShadow }}>
                 {MAX_PLAYERS} dancers is the max for one game. Time to hit the floor!
               </Text>
             </View>
           ) : (
             <>
-              <Text style={{ color: colors.pink, fontSize: 12, fontFamily: fonts.labelMedium, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8, textAlign: "center", ...textOnImageShadow }}>
+              <Text style={{ color: colors.pink, fontSize: 12, fontFamily: fonts.labelBold, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8, textAlign: "center", ...textOnImageShadow }}>
                 {players.length === 0 ? "First Player" : "Next Player"}
               </Text>
-              <Text style={{ color: colors.mint, fontSize: 26, fontFamily: fonts.displaySemiBold, fontStyle: "italic", marginBottom: 20, textAlign: "center", ...textOnImageShadow }}>Solo or Group?</Text>
+              <Text style={{ color: colors.mint, fontSize: 26, fontFamily: fonts.displayBold, marginBottom: 20, textAlign: "center", ...textOnImageShadow }}>Solo or Group?</Text>
               <GradientButton label="SOLO" subtitle="One dancer" onPress={() => selectType("solo")} style={{ width: "100%", marginBottom: 10 }} />
               <OutlineButton label="GROUP" subtitle="Two or more dancers" onPress={() => selectType("group")} style={{ width: "100%" }} />
             </>
@@ -223,7 +223,7 @@ export default function Players() {
               }}
               style={{ marginTop: 16, alignItems: "center", padding: 10 }}
             >
-              <Text style={{ color: colors.mintDim, fontSize: 12, fontFamily: fonts.labelMedium, letterSpacing: 3, textTransform: "uppercase", ...textOnImageShadow }}>Start Game →</Text>
+              <Text style={{ color: colors.mintDim, fontSize: 12, fontFamily: fonts.labelBold, letterSpacing: 3, textTransform: "uppercase", ...textOnImageShadow }}>Start Game →</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -232,7 +232,7 @@ export default function Players() {
       {step === "name" && (
         <View style={{ width: "100%" }}>
           <Text
-            style={{ color: colors.pink, fontSize: 12, fontFamily: fonts.labelMedium, letterSpacing: 3, textTransform: "uppercase", marginBottom: 10, textAlign: "center", ...textOnImageShadow }}
+            style={{ color: colors.pink, fontSize: 12, fontFamily: fonts.labelBold, letterSpacing: 3, textTransform: "uppercase", marginBottom: 10, textAlign: "center", ...textOnImageShadow }}
             onLayout={(e: LayoutChangeEvent) => setHeaderHeight(e.nativeEvent.layout.height)}
           >
             Pick Your Name
@@ -253,7 +253,7 @@ export default function Players() {
               onLayout={(e: LayoutChangeEvent) => setShuffleHeight(e.nativeEvent.layout.height)}
               style={{ marginTop: SHUFFLE_MARGIN_TOP, alignItems: "center", padding: 10 }}
             >
-              <Text style={{ color: colors.mintDim, fontSize: 12, fontFamily: fonts.labelMedium, letterSpacing: 3, ...textOnImageShadow }}>Shuffle ({2 - shuffles} left)</Text>
+              <Text style={{ color: colors.mintDim, fontSize: 12, fontFamily: fonts.labelBold, letterSpacing: 3, ...textOnImageShadow }}>Shuffle ({2 - shuffles} left)</Text>
             </TouchableOpacity>
           )}
         </View>
