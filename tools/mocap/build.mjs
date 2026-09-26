@@ -12,23 +12,30 @@ const SONGS = {
 };
 const KEYS = ['sp', 'nk', 'sl', 'hl', 'uaR', 'faR', 'thR', 'shR', 'uaL', 'faL', 'thL', 'shL'];
 const rows = fs.readFileSync(MOCAP + '/manifest.tsv', 'utf8').trim().split('\n').slice(1).map((l) => l.split('\t'));
-const genre = process.argv[2], song = SONGS[genre];
+// `node build.mjs hiphop` = standing routine; `node build.mjs hiphop floor` = the floor-move set (own file).
+const genre = process.argv[2], wantType = process.argv[3] || 'standing', song = SONGS[genre];
+const outName = wantType === 'floor' ? genre + '-floor' : genre;
 song.bpm = +(song.beats * 60 / song.loopSec).toFixed(2);
 const clips = [], skipped = [];
 const MAX_TEMPO_CHANGE = 0.3; // a clip needing more than +/-30% speed change to hit the beat looks wrong: left out
-for (const [file, g, name, type] of rows) {
-  if (g !== genre || type !== 'standing') continue;
+for (const [file, g, name, type, , forPlayers] of rows) {
+  if (g !== genre || type !== wantType) continue;
   const r = extract(`${MOCAP}/${file}.fbx`);
-  const fit = fitBeats(r.hy, r.fps, song.bpm);
-  if (Math.abs(Math.log(fit.stretch)) > Math.log(1 + MAX_TEMPO_CHANGE)) { skipped.push({ id: file, name, stretch: fit.stretch }); console.error(file, name.padEnd(42), 'SKIPPED off-tempo', fit.stretch); continue; }
+  // Floor moves: hips go to the floor, so there is no bounce to read -- keep natural speed, start on a beat.
+  const songBeat = 60 / song.bpm, nb = Math.max(1, Math.round(r.n / r.fps / songBeat));
+  const fit = wantType === 'floor'
+    ? { beats: nb, firstDip: 0, clipBpm: null, confidence: null, stretch: +((nb * songBeat) / (r.n / r.fps)).toFixed(3) }
+    : fitBeats(r.hy, r.fps, song.bpm);
+  if (wantType === 'standing' && Math.abs(Math.log(fit.stretch)) > Math.log(1 + MAX_TEMPO_CHANGE)) { skipped.push({ id: file, name, stretch: fit.stretch }); console.error(file, name.padEnd(42), 'SKIPPED off-tempo', fit.stretch); continue; }
   const mean = (a) => a.reduce((s, x) => s + x, 0) / a.length;
   const mx = mean(r.hx), mz = mean(r.hz);
   clips.push({
-    id: file, name, fps: r.fps, n: r.n, legLen: r.legLen, ...fit,
+    id: file, name, forPlayers: (forPlayers || 'yes') === 'yes', fps: r.fps, n: r.n, legLen: r.legLen, ...fit,
     f: r.frames.map((fr) => KEYS.flatMap((k) => fr[k].map((v) => Math.round(v * 100)))),
     dx: r.hx.map((v) => Math.round((v - mx) * 100)), dz: r.hz.map((v) => Math.round((v - mz) * 100)),
   });
   console.error(file, name.padEnd(42), JSON.stringify(fit));
 }
-fs.writeFileSync(`mocap-${genre}.json`, JSON.stringify({ genre, ...song, keys: KEYS, clips, skipped }));
-console.error('wrote', `mocap-${genre}.json`, (fs.statSync(`mocap-${genre}.json`).size / 1e6).toFixed(2), 'MB,', clips.length, 'clips');
+const out = `mocap-${outName}.json`;
+fs.writeFileSync(out, JSON.stringify({ genre: outName, floor: wantType === 'floor', ...song, keys: KEYS, clips, skipped }));
+console.error('wrote', out, (fs.statSync(out).size / 1e6).toFixed(2), 'MB,', clips.length, 'clips');
