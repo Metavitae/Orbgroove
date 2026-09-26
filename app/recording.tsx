@@ -23,6 +23,7 @@ import { permissionsState } from "./context/permissions";
 import { genreForDance } from "./lib/danceGenreMap";
 import { pickTrackForGenre } from "./lib/danceMusic";
 import { RECORDING_WINDOW_SEC } from "./lib/constants";
+import { uprightPose } from "./lib/upright";
 
 const BASELINE_WINDOW_MS = 1000;
 
@@ -89,8 +90,9 @@ export default function Recording() {
       landmarks?: Landmark[][];
       results?: { landmarks: Landmark[][] }[];
     };
-    const pose = (r.landmarks ?? r.results?.[0]?.landmarks ?? [])[0];
-    if (!pose) return;
+    const raw = (r.landmarks ?? r.results?.[0]?.landmarks ?? [])[0];
+    if (!raw) return;
+    const pose = uprightPose(raw);
     // Wall-clock time, not r.inferenceTime — that field is the pose
     // model's inference *duration* (tens of ms), not a timestamp, and
     // danceScoring.ts's beat-alignment math needs real elapsed time

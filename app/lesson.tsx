@@ -16,6 +16,7 @@ import { OutlineButton } from "./components/OutlineButton";
 import { colors, fonts, textOnImageShadow } from "./theme";
 import { RIBBONS } from "./lib/ribbons";
 import { matchAt } from "./lib/poseMatch";
+import { uprightPose } from "./lib/upright";
 
 // Solo practice with Ribbons: Ribbons' pre-rendered routine (portrait video,
 // with the song) on the left, the player's FRONT camera on the right -- the
@@ -111,7 +112,8 @@ function DanceStage({ danceKey, onFinish, onQuit }: { danceKey: DanceKey; onFini
     // Same defensive dual-shape read as recording.tsx -- the package's types
     // disagree with its README on the result shape.
     const r = result as unknown as { landmarks?: Landmark[][]; results?: { landmarks: Landmark[][] }[] };
-    const pose = (r.landmarks ?? r.results?.[0]?.landmarks ?? [])[0];
+    const raw = (r.landmarks ?? r.results?.[0]?.landmarks ?? [])[0];
+    const pose = raw ? uprightPose(raw) : undefined;
     const st = statsRef.current;
     st.total++;
     const m = pose ? matchAt(dance.timeline, pose, player.currentTime) : null;
@@ -180,10 +182,6 @@ function DanceStage({ danceKey, onFinish, onQuit }: { danceKey: DanceKey; onFini
 
   return (
     <View style={{ flex: 1, flexDirection: "row", backgroundColor: colors.bg, paddingBottom: insets.bottom }}>
-      {/* Ribbons: portrait panel, full height */}
-      <View style={{ height: "100%", aspectRatio: 9 / 16, backgroundColor: colors.bg }}>
-        <VideoView player={player} style={{ flex: 1 }} contentFit="contain" nativeControls={false} />
-      </View>
       {/* The player */}
       <View style={{ flex: 1 }}>
         {hasPermission && cameraDevice != null && (
@@ -219,6 +217,13 @@ function DanceStage({ danceKey, onFinish, onQuit }: { danceKey: DanceKey; onFini
             <Text style={{ color: colors.mint, fontSize: 12, fontFamily: fonts.labelMedium, letterSpacing: 2, textTransform: "uppercase", marginTop: 6, ...textOnImageShadow }}>Match with Ribbons</Text>
           </View>
         )}
+      </View>
+      {/* Ribbons: portrait panel, full height, on the right. The camera has to be
+          the left-hand panel: its texture view draws from the screen's left
+          edge whatever its box's x offset, so on the right it covered
+          Ribbons and left its own box empty (found on-device 2026-09-26). */}
+      <View style={{ height: "100%", aspectRatio: 9 / 16, backgroundColor: colors.bg }}>
+        <VideoView player={player} style={{ flex: 1 }} contentFit="contain" nativeControls={false} />
       </View>
     </View>
   );

@@ -181,13 +181,15 @@ export default function Players() {
       {step === "type" && (
         <View style={{ width: "100%" }}>
           {players.length > 0 && (
-            <View style={{ marginBottom: 16 }}>
-              <Text style={{ color: colors.pink, fontSize: 10, fontFamily: fonts.labelMedium, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6, ...textOnImageShadow }}>Players</Text>
-              {players.map((p, i) => (
-                <Text key={i} style={{ color: colors.mint, fontSize: 14, fontFamily: fonts.displayRegular, marginBottom: 4, ...textOnImageShadow }}>
-                  {i + 1}. {p.name} <Text style={{ color: colors.mintDim, fontSize: 11, fontFamily: fonts.labelRegular }}>({p.type})</Text>
-                </Text>
-              ))}
+            <View style={{ marginBottom: 10, marginTop: 12 }}>
+              <Text numberOfLines={1} style={{ color: colors.mint, fontSize: 14, fontFamily: fonts.displayRegular, ...textOnImageShadow }}>
+                <Text style={{ color: colors.pink, fontSize: 10, fontFamily: fonts.labelMedium, letterSpacing: 3 }}>PLAYERS  </Text>
+                {players.map((p, i) => (
+                  <Text key={i}>
+                    {i > 0 ? "  ·  " : ""}{i + 1}. {p.name} <Text style={{ color: colors.mintDim, fontSize: 11, fontFamily: fonts.labelRegular }}>({p.type})</Text>
+                  </Text>
+                ))}
+              </Text>
             </View>
           )}
           {players.length >= MAX_PLAYERS ? (
