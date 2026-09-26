@@ -2,7 +2,7 @@
 // assets/data/pose-reference.json.
 export const DANCE_GENRE_MAP: Record<string, string> = {
   "Samba": "samba",
-  "Flamenco": "flamenco",
+  "Rumba Flamenca": "flamenco",
   "Tango": "tango",
   "Salsa": "salsa",
   "Merengue": "merengue",

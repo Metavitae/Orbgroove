@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>html,body{margin:0;background:#0A3B2E;overflow:hidden}canvas{display:block}</style>
+<!-- component.js = the canvas's Component class (with a DCLogic props/state stub) -->
+<script src="component.js"></script>
+</head>
+<body>
+<script type="module">
+import * as THREE from './three.module.js';
+const W = 540, H = 960;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1);
+renderer.setSize(W, H);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#0A3B2E');
+scene.add(new THREE.HemisphereLight(0xffffff, 0x1c4a3c, 1.1));
+const key = new THREE.DirectionalLight(0xffffff, 2.3);
+key.position.set(4, 9, 7); key.castShadow = true; key.shadow.mapSize.set(2048, 2048);
+Object.assign(key.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8, near: 1, far: 40 });
+scene.add(key);
+const fill = new THREE.DirectionalLight(0xbff0ff, 0.6); fill.position.set(-6, 3, -4); scene.add(fill);
+
+const c = new Component({ showJoints: true });
+c.THREE = THREE;
+const fig = c.buildFigure();
+c._fig = fig;
+c.calibrateFloor();
+c.applyRest();
+scene.add(fig);
+fig.updateMatrixWorld(true);
+const floorY = new THREE.Box3().setFromObject(fig, true).min.y;
+c._floorY = floorY;
+fig.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+
+// soft round stage spot under Ribbons
+const floor = new THREE.Mesh(new THREE.CircleGeometry(5.5, 64), new THREE.MeshStandardMaterial({ color: '#0F4A39', roughness: 0.9 }));
+floor.rotation.x = -Math.PI / 2; floor.position.y = floorY - 0.001; floor.receiveShadow = true; scene.add(floor);
+
+const camera = new THREE.PerspectiveCamera(32, W / H, 0.1, 100);
+const CAM_Z = 25, CAM_H = 3.7, LOOK_H = 3.4;
+let camX = 0;
+const placeCamera = (x) => { camera.position.set(x, floorY + CAM_H, CAM_Z); camera.lookAt(x, floorY + LOOK_H, 0); };
+placeCamera(0);
+
+let d = null;
+window.loadGenre = async (key) => {
+  d = await (await fetch('mocap-' + key + '.json')).json();
+  let beat = 0; d.clips.forEach((x) => { x.start = beat; beat += x.beats; }); d.totalBeats = beat;
+  c._springs = c.makeSprings();
+  camX = 0;
+  return { bpm: d.bpm, loopSec: d.loopSec, beats: d.beats, clips: d.clips.length, totalBeats: d.totalBeats };
+};
+
+// On-screen (2D, y up) direction and foreshortening of the 8 limbs a player's
+// camera can see, Ribbons' R = screen right. Used by the app's live match meter.
+const LIMBS = [['uaR', 'arms', 'R', 'upper', 'fore'], ['faR', 'arms', 'R', 'fore', 'hand'], ['uaL', 'arms', 'L', 'upper', 'fore'], ['faL', 'arms', 'L', 'fore', 'hand'],
+  ['thR', 'legs', 'R', 'thigh', 'shin'], ['shR', 'legs', 'R', 'shin', 'foot'], ['thL', 'legs', 'L', 'thigh', 'shin'], ['shL', 'legs', 'L', 'shin', 'foot']];
+const scr = (o) => { const v = new THREE.Vector3(); o.getWorldPosition(v); const w = v.clone(); v.project(camera); return { x: v.x * W / 2, y: v.y * H / 2, w }; };
+
+window.frame = (songSec, dt, wantImage) => {
+  const pos = ((songSec * d.bpm / 60) % d.totalBeats + d.totalBeats) % d.totalBeats;
+  const { pose, index } = c.sampleRoutine(d, pos);
+  const sm = { dx: pose.dx, dz: pose.dz };
+  Object.keys(c._springs).forEach((k) => { sm[k] = c._springs[k].step(pose[k], dt); });
+  c.applyMocap(sm); c.ground();
+  // camera drifts after Ribbons' travel (slow follow), stage spot follows under the feet
+  if (songSec === 0) camX = c.bones.root.position.x;
+  camX += (c.bones.root.position.x - camX) * Math.min(1, dt * 3);
+  placeCamera(camX);
+  floor.position.x = c.bones.root.position.x; floor.position.z = c.bones.root.position.z;
+  fig.updateMatrixWorld(true);
+  const limbs = LIMBS.map(([name, part, side, a, b]) => {
+    const g = c.bones[part][side], p = scr(g[a]), q = scr(g[b]);
+    const dx = q.x - p.x, dy = q.y - p.y, len2d = Math.hypot(dx, dy);
+    return [Math.round(dx / (len2d || 1) * 100), Math.round(dy / (len2d || 1) * 100), Math.round(len2d)];
+  });
+  renderer.render(scene, camera);
+  return { index, move: d.clips[index].name, limbs, img: wantImage ? renderer.domElement.toDataURL('image/jpeg', 0.88) : null };
+};
+window.ready = true;
+</script>
+</body>
+</html>

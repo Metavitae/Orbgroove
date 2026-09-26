@@ -2,6 +2,7 @@ import { Text, View, TouchableOpacity, ImageBackground } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GradientButton } from "./components/GradientButton";
+import { OutlineButton } from "./components/OutlineButton";
 import { colors, fonts, textOnImageShadow } from "./theme";
 
 export default function Index() {
@@ -19,6 +20,7 @@ export default function Index() {
         <Text style={{ color: colors.pink }}>groove</Text>
       </Text>
       <GradientButton label="START GAME" onPress={() => router.push("/gamemode")} style={{ marginTop: 40 }} />
+      <OutlineButton label="PRACTICE WITH RIBBONS" onPress={() => router.push("/lesson" as any)} style={{ marginTop: 14 }} />
       <TouchableOpacity onPress={() => router.push("/pose-test")} style={{ marginTop: 20 }}>
         <Text style={{ color: colors.mintDim, fontSize: 12, fontFamily: fonts.labelRegular, opacity: 0.5, ...textOnImageShadow }}>pose test (dev)</Text>
       </TouchableOpacity>

@@ -12,7 +12,7 @@ const genres = [
   { name: "Afrobeats" },
   { name: "K-pop" },
   { name: "Samba" },
-  { name: "Flamenco" },
+  { name: "Rumba Flamenca" },
   { name: "Tango" },
   { name: "Salsa" },
   { name: "Merengue" },

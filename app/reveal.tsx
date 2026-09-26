@@ -9,6 +9,9 @@ import { colors, fonts, textOnImageShadow } from "./theme";
 import { genreForDance } from "./lib/danceGenreMap";
 import { computeMovesScore, computeRhythmScore, computeBeatAlignmentScore, secondsWithVisibleBody, MIN_VISIBLE_SECONDS, type Pose } from "./lib/danceScoring";
 import { RECORDING_WINDOW_SEC } from "./lib/constants";
+import { ribbonsForGenre } from "./lib/ribbons";
+import { StickFigureReplay } from "./components/StickFigureReplay";
+import { useVideoPlayer, VideoView } from "expo-video";
 import poseReferenceData from "../assets/data/pose-reference.json";
 
 const REFERENCE_POSES = poseReferenceData as Record<string, { label: string; landmarks: Pose }[]>;
@@ -106,6 +109,13 @@ export default function Reveal() {
   });
   const scoredRef = useRef(false);
 
+  const ribbons = ribbonsForGenre(currentGenre ? genreForDance(currentGenre.name) : null);
+  const proPlayer = useVideoPlayer(ribbons?.video ?? null, (p) => { p.loop = true; p.muted = true; });
+  useEffect(() => {
+    if (!ribbons) return;
+    if (phase === "splitscreen") proPlayer.play(); else proPlayer.pause();
+  }, [phase, ribbons, proPlayer]);
+
   useEffect(() => {
     setTimeout(() => setPhase(wasSeen ? "splitscreen" : "notseen"), 2000);
   }, []);
@@ -179,10 +189,19 @@ export default function Reveal() {
       {phase === "splitscreen" && bgContainerSize && (
         <>
           {[
-            { frame: LEFT_FRAME, emoji: "🕺", label: "YOUR MOVES", color: colors.mint },
-            { frame: RIGHT_FRAME, emoji: "💃", label: "PRO MOVES", color: colors.cyan },
-          ].map(({ frame, emoji, label, color }) => {
+            { frame: LEFT_FRAME, emoji: "🕺", label: "YOUR MOVES", color: colors.mint, kind: "you" as const },
+            { frame: RIGHT_FRAME, emoji: "💃", label: "PRO MOVES", color: colors.cyan, kind: "pro" as const },
+          ].map(({ frame, emoji, label, color, kind }) => {
             const rect = frameRectInContainer(bgContainerSize, frame);
+            // PRO MOVES = Ribbons dancing this genre (pre-rendered, muted) when
+            // the genre has motion capture; YOUR MOVES = the player's own
+            // captured moves replayed as a stick figure. Emoji otherwise.
+            const media =
+              kind === "pro" && ribbons ? (
+                <VideoView player={proPlayer} style={{ width: "100%", height: "100%" }} contentFit="contain" nativeControls={false} />
+              ) : kind === "you" && wasSeen ? (
+                <StickFigureReplay frames={capturedFrames} width={rect.width * 0.9} height={rect.height * 0.8} color={colors.mint} />
+              ) : null;
             return (
               <View
                 key={label}
@@ -194,11 +213,12 @@ export default function Reveal() {
                   height: rect.height,
                   justifyContent: "center",
                   alignItems: "center",
+                  overflow: "hidden",
                 }}
                 pointerEvents="none"
               >
-                <Text style={{ fontSize: 60 }}>{emoji}</Text>
-                <Text style={{ color, fontSize: 15, fontFamily: fonts.labelBold, marginTop: 12, letterSpacing: 2, ...textOnImageShadow }}>{label}</Text>
+                {media ?? <Text style={{ fontSize: 60 }}>{emoji}</Text>}
+                <Text style={{ color, fontSize: 15, fontFamily: fonts.labelBold, marginTop: media ? 0 : 12, letterSpacing: 2, ...(media ? { position: "absolute" as const, bottom: 10 } : {}), ...textOnImageShadow }}>{label}</Text>
               </View>
             );
           })}

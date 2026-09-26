@@ -46,6 +46,7 @@ export default function RootLayout() {
           <Stack.Screen name="reveal" />
           <Stack.Screen name="leaderboard" />
           <Stack.Screen name="winner" />
+          <Stack.Screen name="lesson" />
           <Stack.Screen name="pose-test" />
         </Stack>
       </GameProvider>
