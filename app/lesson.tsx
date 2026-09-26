@@ -17,6 +17,7 @@ import { colors, fonts, textOnImageShadow } from "./theme";
 import { RIBBONS } from "./lib/ribbons";
 import { matchAt } from "./lib/poseMatch";
 import { uprightPose } from "./lib/upright";
+import { useFramingCoach, FRAMING_TEXT, sayNext } from "./lib/framingCoach";
 
 // Solo practice with Ribbons: Ribbons' pre-rendered routine (portrait video,
 // with the song) on the left, the player's FRONT camera on the right -- the
@@ -92,7 +93,7 @@ export default function Lesson() {
 function DanceStage({ danceKey, onFinish, onQuit }: { danceKey: DanceKey; onFinish: (r: { match: number; seenShare: number }) => void; onQuit: () => void }) {
   const insets = useSafeAreaInsets();
   const dance = RIBBONS[danceKey];
-  const [phase, setPhase] = useState<"countdown" | "dance">("countdown");
+  const [phase, setPhase] = useState<"framing" | "countdown" | "dance">("framing");
   const [count, setCount] = useState(3);
   const [meter, setMeter] = useState<number | null>(null);
   // Parent passes a fresh callback each render; read it through a ref so the
@@ -106,14 +107,16 @@ function DanceStage({ danceKey, onFinish, onQuit }: { danceKey: DanceKey; onFini
   const smoothRef = useRef<number | null>(null);
   const statsRef = useRef({ sum: 0, n: 0, seen: 0, total: 0 });
   const dancingRef = useRef(false);
+  const latestPoseRef = useRef<{ pose: Landmark[]; at: number } | null>(null);
 
   const onPoseResults = useCallback((result: PoseDetectionResultBundle) => {
-    if (!dancingRef.current) return;
     // Same defensive dual-shape read as recording.tsx -- the package's types
     // disagree with its README on the result shape.
     const r = result as unknown as { landmarks?: Landmark[][]; results?: { landmarks: Landmark[][] }[] };
     const raw = (r.landmarks ?? r.results?.[0]?.landmarks ?? [])[0];
     const pose = raw ? uprightPose(raw) : undefined;
+    if (pose) latestPoseRef.current = { pose, at: Date.now() };
+    if (!dancingRef.current) return;
     const st = statsRef.current;
     st.total++;
     const m = pose ? matchAt(dance.timeline, pose, player.currentTime) : null;
@@ -148,6 +151,14 @@ function DanceStage({ danceKey, onFinish, onQuit }: { danceKey: DanceKey; onFini
   const cameraFormat = useCameraFormat(cameraDevice, [{ videoResolution: { width: 1280, height: 720 } }]);
   useEffect(() => { if (cameraDevice) poseSolution.cameraDeviceChangeHandler(cameraDevice); }, [poseSolution, cameraDevice]);
   useEffect(() => { poseSolution.resizeModeChangeHandler("cover"); }, [poseSolution]);
+
+  const framing = useFramingCoach(phase === "framing", latestPoseRef, () => setPhase("countdown"));
+
+  // Counted out loud too: the player can't see the screen from across the room.
+  useEffect(() => {
+    if (phase === "countdown" && count > 0) sayNext(String(count));
+    if (phase === "dance") sayNext("Dance!");
+  }, [phase, count]);
 
   useEffect(() => {
     if (phase !== "countdown") return;
@@ -203,7 +214,13 @@ function DanceStage({ danceKey, onFinish, onQuit }: { danceKey: DanceKey; onFini
           <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 3, textTransform: "uppercase", ...textOnImageShadow }}>{dance.label} · copy Ribbons</Text>
           <OutlineButton label="STOP" onPress={onQuit} style={{ paddingHorizontal: 18, paddingVertical: 8 }} />
         </View>
-        {phase === "countdown" ? (
+        {phase === "framing" ? (
+          <View style={{ ...StyleSheet.absoluteFillObject, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(6,20,15,0.45)", padding: 16 }}>
+            <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", marginBottom: 12, ...textOnImageShadow }}>Get in the picture, head to feet</Text>
+            <Text style={{ color: colors.mint, fontSize: 36, fontFamily: fonts.displayBold, textAlign: "center", marginBottom: 24, ...textOnImageShadow }}>{FRAMING_TEXT[framing]}</Text>
+            <OutlineButton label="START ANYWAY" onPress={() => setPhase("countdown")} style={{ paddingVertical: 10 }} />
+          </View>
+        ) : phase === "countdown" ? (
           <View style={{ ...StyleSheet.absoluteFillObject, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(6,20,15,0.45)" }}>
             <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", marginBottom: 12, ...textOnImageShadow }}>Step back so we can see all of you</Text>
             <Text style={{ color: colors.mint, fontSize: 140, fontFamily: fonts.displayBold, ...textOnImageShadow }}>{count}</Text>

@@ -24,6 +24,8 @@ import { genreForDance } from "./lib/danceGenreMap";
 import { pickTrackForGenre } from "./lib/danceMusic";
 import { RECORDING_WINDOW_SEC } from "./lib/constants";
 import { uprightPose } from "./lib/upright";
+import { useFramingCoach, FRAMING_TEXT, sayNext } from "./lib/framingCoach";
+import { OutlineButton } from "./components/OutlineButton";
 
 const BASELINE_WINDOW_MS = 1000;
 
@@ -35,7 +37,11 @@ export default function Recording() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { currentPlayer, currentGenre, currentPlayerIndex, mode, addCheerScore, setCapturedFrames, setDanceTrack } = useGame();
-  const [phase, setPhase] = useState("countdown");
+  // "framing": the spoken coach gets the player fully in the picture first
+  // (see lib/framingCoach.ts), then the countdown starts.
+  const [phase, setPhase] = useState("framing");
+  const phaseRef = useRef(phase);
+  phaseRef.current = phase;
   const [count, setCount] = useState(3);
   const [timeLeft, setTimeLeft] = useState(RECORDING_WINDOW_SEC);
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -78,6 +84,7 @@ export default function Recording() {
   // below, for reveal.tsx's scoring (see app/lib/danceScoring.ts).
   const { hasPermission: hasCameraPermission, requestPermission: requestCameraPermission } = useCameraPermission();
   const capturedFramesRef = useRef<{ landmarks: Landmark[]; timestampMs: number }[]>([]);
+  const latestPoseRef = useRef<{ pose: Landmark[]; at: number } | null>(null);
 
   useEffect(() => {
     if (!hasCameraPermission) requestCameraPermission();
@@ -93,6 +100,9 @@ export default function Recording() {
     const raw = (r.landmarks ?? r.results?.[0]?.landmarks ?? [])[0];
     if (!raw) return;
     const pose = uprightPose(raw);
+    latestPoseRef.current = { pose, at: Date.now() };
+    // The camera already runs during framing and countdown; only the dance counts.
+    if (phaseRef.current !== "recording") return;
     // Wall-clock time, not r.inferenceTime — that field is the pose
     // model's inference *duration* (tens of ms), not a timestamp, and
     // danceScoring.ts's beat-alignment math needs real elapsed time
@@ -205,6 +215,14 @@ export default function Recording() {
     };
   }, []);
 
+  const framing = useFramingCoach(phase === "framing", latestPoseRef, () => setPhase("countdown"));
+
+  // Counted out loud too: the player can't see the screen from across the room.
+  useEffect(() => {
+    if (phase === "countdown" && count > 0) sayNext(String(count));
+    if (phase === "recording") sayNext("Dance!");
+  }, [phase, count]);
+
   useEffect(() => {
     if (phase === "countdown") {
       const interval = setInterval(() => {
@@ -261,7 +279,7 @@ export default function Recording() {
     }
   }, [phase]);
 
-  const showCamera = phase === "recording" && hasCameraPermission && cameraDevice != null;
+  const showCamera = (phase === "framing" || phase === "countdown" || phase === "recording") && hasCameraPermission && cameraDevice != null;
 
   return (
     <ImageBackground
@@ -300,6 +318,15 @@ export default function Recording() {
         ]}
         pointerEvents="none"
       />
+      {phase === "framing" && (
+        <View style={{ alignItems: "center" }}>
+          <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", marginBottom: 20, ...textOnImageShadow }}>
+            {currentPlayer ? `${currentPlayer.name}, get in the picture` : "Get in the picture"}
+          </Text>
+          <Text style={{ color: colors.mint, fontSize: 40, fontFamily: fonts.displayBold, textAlign: "center", marginBottom: 32, ...textOnImageShadow }}>{FRAMING_TEXT[framing]}</Text>
+          <OutlineButton label="START ANYWAY" onPress={() => setPhase("countdown")} style={{ paddingVertical: 10 }} />
+        </View>
+      )}
       {phase === "countdown" && (
         <View style={{ alignItems: "center" }}>
           <Text style={{ color: colors.pink, fontSize: 13, fontFamily: fonts.labelMedium, letterSpacing: 4, textTransform: "uppercase", marginBottom: 40, ...textOnImageShadow }}>
